@@ -31,8 +31,13 @@ import { getFirstAndLastName, getUserInitials } from "@/helpers/name-format";
 import { useTheme } from "@/hooks/use-theme";
 import { authClient } from "@/lib/auth-client";
 import {
+  BankIcon,
   ChartDonutIcon,
+  EggIcon,
+  HandArrowDownIcon,
+  HandArrowUpIcon,
   MegaphoneIcon,
+  ReceiptIcon,
   SignOutIcon,
   SpinnerIcon,
   UsersIcon,
@@ -51,6 +56,49 @@ const items = [
         title: "Dashboard",
         url: "/dashboard",
         icon: ChartDonutIcon,
+      },
+    ],
+    permissions: ["admin", "member"],
+  },
+  {
+    group: "Produção",
+    items: [
+      {
+        title: "Acompanhamento",
+        url: "/production",
+        icon: EggIcon,
+      },
+    ],
+    permissions: ["admin", "member"],
+  },
+  {
+    group: "Financeiro",
+    items: [
+      {
+        title: "Contas a receber",
+        url: "/",
+        icon: HandArrowDownIcon,
+      },
+      {
+        title: "Contas a pagar",
+        url: "/",
+        icon: HandArrowUpIcon,
+      },
+      {
+        title: "Contas bancárias",
+        url: "/",
+        icon: BankIcon,
+      },
+    ],
+    permissions: ["admin", "member"],
+  },
+  {
+    group: "Vendas",
+    items: [
+      {
+        title: "Emissão Nota Fiscal",
+        url: "/",
+        icon: ReceiptIcon,
       },
     ],
     permissions: ["admin", "member"],
@@ -113,11 +161,11 @@ export function AppSidebar({ userRole, appVersion }: AppSidebarProps) {
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center justify-between">
           <Image
-            alt="Logo Gestor Financeiro"
+            alt="Logotipo Granja Barreto"
             src={
               resolvedTheme === "dark"
-                ? "/logo-dark-mode.svg"
-                : "/logo-light-mode.svg"
+                ? "/sidebar-dark-logotipo.svg"
+                : "/sidebar-light-logotipo.svg"
             }
             width={136}
             height={28}

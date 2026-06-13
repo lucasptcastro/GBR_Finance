@@ -341,6 +341,24 @@ export const verificationTable = pgTable("verification", {
 });
 
 /* -------------------------------------------------------------------------- */
+/*                             Egg Production                                 */
+/* -------------------------------------------------------------------------- */
+
+export const eggProductionTable = pgTable("egg_production", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  date: date("date", { mode: "date" }).notNull().unique(),
+  traysProduced: integer("trays_produced").notNull().default(0),
+  eggsLeftover: integer("eggs_leftover").notNull().default(0),
+  crackedEggs: integer("cracked_eggs").notNull().default(0),
+  feedUsed: integer("feed_used").notNull().default(0),
+  deadBirds: integer("dead_birds").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+/* -------------------------------------------------------------------------- */
 /*                                 Relations                                  */
 /* -------------------------------------------------------------------------- */
 

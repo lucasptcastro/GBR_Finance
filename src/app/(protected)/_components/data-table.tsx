@@ -45,6 +45,8 @@ interface DataTableProps<TData, TValue> {
   filterFields?: DataTableFilterField[];
   /** Estado inicial da tabela (ex.: `columnVisibility` para colunas só de filtro). */
   initialState?: InitialTableState;
+  /** Callback acionado ao clicar em uma linha da tabela. */
+  onRowClick?: (row: TData) => void;
 }
 
 function getLocalDateStamp() {
@@ -62,6 +64,7 @@ export function DataTable<TData, TValue>({
   meta,
   filterFields,
   initialState,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -154,6 +157,10 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={
+                    onRowClick ? () => onRowClick(row.original) : undefined
+                  }
+                  className={onRowClick ? "cursor-pointer" : undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
