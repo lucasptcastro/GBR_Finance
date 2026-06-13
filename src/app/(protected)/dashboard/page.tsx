@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/breadcrumb";
 // import { DateRangePreset } from "@/components/ui/date-range-preset";
 // import { RangeDatePicker } from "@/components/ui/range-date-picker";
-import { db } from "@/db";
 import { auth } from "@/lib/auth";
 
 interface DashboardPageProps {
