@@ -42,6 +42,7 @@ import {
   SpinnerIcon,
   UsersIcon,
 } from "@phosphor-icons/react";
+import { WarehouseIcon } from "lucide-react";
 
 interface AppSidebarProps {
   userRole: string;
@@ -67,6 +68,11 @@ const items = [
         title: "Acompanhamento",
         url: "/production",
         icon: EggIcon,
+      },
+      {
+        title: "Galpões",
+        url: "/warehouses",
+        icon: WarehouseIcon,
       },
     ],
     permissions: ["admin", "member"],

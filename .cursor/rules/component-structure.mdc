@@ -1,0 +1,41 @@
+---
+description: Regras de estrutura e organização de componentes React
+globs: src/**/*.tsx
+alwaysApply: true
+---
+
+# Estrutura de componentes
+
+## Um componente por arquivo
+
+Cada componente exportado deve ter seu próprio arquivo. Não declare mais de um componente exportado no mesmo arquivo, e nunca crie componentes dentro de outros componentes.
+
+**Errado — múltiplos componentes no mesmo arquivo:**
+```tsx
+export function ComponenteA() { ... }
+export function ComponenteB() { ... } // ❌ segundo componente no mesmo arquivo
+```
+
+**Errado — componente aninhado dentro de outro:**
+```tsx
+export function Pai() {
+  function Filho() { return <div />; } // ❌ componente definido dentro de outro
+  return <Filho />;
+}
+```
+
+**Correto:**
+```
+batch-row.tsx       → export function BatchRow() { ... }
+warehouse-row.tsx   → export function WarehouseRow() { ... }
+warehouses-table.tsx → export function WarehousesTable() { ... }
+```
+
+Funções utilitárias puras (como `formatAge`, `cn`, helpers de formatação) podem conviver no mesmo arquivo do componente que as usa.
+
+## Padrão para tabelas com linhas interativas
+
+Quando uma tabela possui rows com estado (dialogs, dropdowns, actions), cada tipo de row deve ter seu próprio arquivo:
+
+- `*-table.tsx` → apenas o shell da tabela (cabeçalhos, estado vazio, iteração de rows)
+- `*-row.tsx` → componente de row com estado, dialogs e server actions

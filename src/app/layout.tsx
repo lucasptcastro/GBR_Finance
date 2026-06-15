@@ -60,7 +60,7 @@ export default function RootLayout({
         ralewayHeading.variable,
       )}
     >
-      <body className="min-h-full flex flex-col antialiased">
+      <body suppressHydrationWarning className="min-h-full flex flex-col antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

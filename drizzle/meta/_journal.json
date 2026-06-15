@@ -8,6 +8,13 @@
       "when": 1781363565912,
       "tag": "0000_good_paibok",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781543594846,
+      "tag": "0001_youthful_jackpot",
+      "breakpoints": true
     }
   ]
 }

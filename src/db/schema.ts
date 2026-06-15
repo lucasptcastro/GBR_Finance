@@ -359,6 +359,66 @@ export const eggProductionTable = pgTable("egg_production", {
 });
 
 /* -------------------------------------------------------------------------- */
+/*                                 Warehouses                                 */
+/* -------------------------------------------------------------------------- */
+
+export const warehousesTable = pgTable("warehouses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  createdBy: text("created_by").references(() => userTable.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export const warehousesRelations = relations(
+  warehousesTable,
+  ({ one, many }) => ({
+    creator: one(userTable, {
+      fields: [warehousesTable.createdBy],
+      references: [userTable.id],
+    }),
+    batches: many(birdBatchesTable),
+  }),
+);
+
+/* -------------------------------------------------------------------------- */
+/*                               Bird Batches                                 */
+/* -------------------------------------------------------------------------- */
+
+export const birdBatchesTable = pgTable("bird_batches", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  quantity: integer("quantity").notNull(),
+  intakeDate: date("intake_date", { mode: "date" }).notNull(),
+  ageAtIntakeMonths: integer("age_at_intake_months").notNull(),
+  warehouseId: uuid("warehouse_id")
+    .notNull()
+    .references(() => warehousesTable.id, { onDelete: "cascade" }),
+  createdBy: text("created_by").references(() => userTable.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export const birdBatchesRelations = relations(birdBatchesTable, ({ one }) => ({
+  warehouse: one(warehousesTable, {
+    fields: [birdBatchesTable.warehouseId],
+    references: [warehousesTable.id],
+  }),
+  creator: one(userTable, {
+    fields: [birdBatchesTable.createdBy],
+    references: [userTable.id],
+  }),
+}));
+
+/* -------------------------------------------------------------------------- */
 /*                                 Relations                                  */
 /* -------------------------------------------------------------------------- */
 
@@ -366,6 +426,8 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   transactions: many(transactionsTable),
   recurringAccounts: many(recurringAccountsTable),
   bankAccounts: many(bankAccountsTable),
+  warehouses: many(warehousesTable),
+  birdBatches: many(birdBatchesTable),
   role: one(rolesTable, {
     fields: [userTable.roleId],
     references: [rolesTable.id],
