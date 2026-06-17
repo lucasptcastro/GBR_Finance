@@ -26,9 +26,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+interface Warehouse {
+  id: string;
+  name: string;
+}
+
 interface MonthlyProductionChartProps {
   monthlyProductionData: MonthlyProduction[];
   startFrom?: string;
+  warehouses?: Warehouse[];
 }
 
 const METRIC_OPTIONS = [
@@ -84,26 +90,30 @@ const MONTH_FULL: Record<number, string> = {
 export function MonthlyProductionChart({
   monthlyProductionData,
   startFrom,
+  warehouses = [],
 }: MonthlyProductionChartProps) {
   const currentYear = dayjs().format("YYYY");
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMetric, setSelectedMetric] = useState<"all" | MetricKey>(
     "all",
   );
-  const [productionByYear, setProductionByYear] = useState<
-    Record<string, MonthlyProduction[]>
-  >({
-    [currentYear]: monthlyProductionData,
-  });
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>("all");
+  const [productionByYearAndWarehouse, setProductionByYearAndWarehouse] =
+    useState<Record<string, MonthlyProduction[]>>({
+      [`${currentYear}-all`]: monthlyProductionData,
+    });
+
+  const cacheKey = `${selectedYear}-${selectedWarehouseId}`;
 
   const getMonthlyProductionByYearAction = useAction(
     getDashboardMonthlyProductionByYear,
     {
       onSuccess: ({ data }) => {
         if (!data) return;
-        setProductionByYear((prev) => ({
+        const key = `${data.year}-${data.warehouseId ?? "all"}`;
+        setProductionByYearAndWarehouse((prev) => ({
           ...prev,
-          [data.year]: data.monthlyProductionData,
+          [key]: data.monthlyProductionData,
         }));
       },
       onError: ({ error }) => {
@@ -113,9 +123,9 @@ export function MonthlyProductionChart({
   );
 
   useEffect(() => {
-    setProductionByYear((prev) => ({
+    setProductionByYearAndWarehouse((prev) => ({
       ...prev,
-      [currentYear]: monthlyProductionData,
+      [`${currentYear}-all`]: monthlyProductionData,
     }));
   }, [currentYear, monthlyProductionData]);
 
@@ -137,8 +147,10 @@ export function MonthlyProductionChart({
   }, [monthlyProductionData, currentYear, startFrom]);
 
   const selectedYearData =
-    productionByYear[selectedYear] ??
-    (selectedYear === currentYear ? monthlyProductionData : []);
+    productionByYearAndWarehouse[cacheKey] ??
+    (selectedYear === currentYear && selectedWarehouseId === "all"
+      ? monthlyProductionData
+      : []);
 
   const chartMonths = Array.from({ length: 12 }).map((_item, index) =>
     dayjs(`${selectedYear}-01-01`)
@@ -179,8 +191,23 @@ export function MonthlyProductionChart({
 
   const handleChangeYear = (year: string) => {
     setSelectedYear(year);
-    if (productionByYear[year]) return;
-    getMonthlyProductionByYearAction.execute({ year: Number(year) });
+    const key = `${year}-${selectedWarehouseId}`;
+    if (productionByYearAndWarehouse[key]) return;
+    getMonthlyProductionByYearAction.execute({
+      year: Number(year),
+      warehouseId:
+        selectedWarehouseId !== "all" ? selectedWarehouseId : undefined,
+    });
+  };
+
+  const handleChangeWarehouse = (warehouseId: string) => {
+    setSelectedWarehouseId(warehouseId);
+    const key = `${selectedYear}-${warehouseId}`;
+    if (productionByYearAndWarehouse[key]) return;
+    getMonthlyProductionByYearAction.execute({
+      year: Number(selectedYear),
+      warehouseId: warehouseId !== "all" ? warehouseId : undefined,
+    });
   };
 
   return (
@@ -194,6 +221,25 @@ export function MonthlyProductionChart({
             <p className="font-bold">Produção Mensal</p>
           </div>
           <div className="flex items-center gap-2">
+            {warehouses.length > 0 && (
+              <Select
+                value={selectedWarehouseId}
+                onValueChange={handleChangeWarehouse}
+                disabled={getMonthlyProductionByYearAction.isPending}
+              >
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Galpão" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os Galpões</SelectItem>
+                  {warehouses.map((warehouse) => (
+                    <SelectItem key={warehouse.id} value={warehouse.id}>
+                      {warehouse.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             <Select
               value={selectedMetric}
               onValueChange={(value) =>

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, gte, lt, sql } from "drizzle-orm";
+import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db";
@@ -18,8 +18,10 @@ export interface MonthlyProduction {
 }
 
 export const getDashboardMonthlyProductionByYear = protectedActionClient
-  .schema(z.object({ year: z.number() }))
-  .action(async ({ parsedInput: { year } }) => {
+  .schema(
+    z.object({ year: z.number(), warehouseId: z.string().optional() }),
+  )
+  .action(async ({ parsedInput: { year, warehouseId } }) => {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year + 1, 0, 1);
 
@@ -37,6 +39,9 @@ export const getDashboardMonthlyProductionByYear = protectedActionClient
         and(
           gte(eggProductionTable.date, startDate),
           lt(eggProductionTable.date, endDate),
+          warehouseId
+            ? eq(eggProductionTable.warehouseId, warehouseId)
+            : undefined,
         ),
       )
       .groupBy(sql`to_char(${eggProductionTable.date}, 'MM')`)
@@ -52,5 +57,5 @@ export const getDashboardMonthlyProductionByYear = protectedActionClient
       deadBirds: row.deadBirds ?? 0,
     }));
 
-    return { year: String(year), monthlyProductionData };
+    return { year: String(year), warehouseId, monthlyProductionData };
   });

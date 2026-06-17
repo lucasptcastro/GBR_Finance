@@ -22,8 +22,10 @@ import { auth } from "@/lib/auth";
 import { Bird, Egg, EggOff, LayoutGrid, Wheat } from "lucide-react";
 import { SummaryCard } from "../_components/summary-card";
 import { getMonthlyProductionByYear } from "./_data/get-monthly-production-by-year";
+import { getProductionSummaryByDateRange } from "./_data/get-production-summary-by-date-range";
 import { DashboardCharts } from "./_components/dashboard-charts";
 import { RangeDatePicker } from "../_components/range-date-picker";
+import { getWarehouses } from "../warehouses/_data/get-warehouses";
 
 interface DashboardPageProps {
   searchParams: Promise<{
@@ -46,50 +48,67 @@ export default async function DashboardPage({
   const { from, to } = await searchParams;
 
   const currentYear = new Date().getFullYear();
-  const monthlyProductionData = await getMonthlyProductionByYear(currentYear);
+
+  const [monthlyProductionData, warehousesData, productionSummary] =
+    await Promise.all([
+      getMonthlyProductionByYear(currentYear),
+      getWarehouses(),
+      getProductionSummaryByDateRange(from, to),
+    ]);
+
+  const warehouses = warehousesData.map(({ id, name }) => ({ id, name }));
 
   const summary = [
     {
-      title: "Bandejas no Mês",
-      amount: 0,
+      title: "Total de Ovos ",
+      amount: productionSummary.totalEggs.toLocaleString("pt-BR"),
       icon: (
-        <div className="rounded-sm bg-primary/10 p-1.5">
-          <LayoutGrid size={16} className="text-primary" />
-        </div>
-      ),
-    },
-    {
-      title: "Ovos Sobrados no Mês",
-      amount: 0,
-      icon: (
-        <div className="rounded-sm bg-primary/10 p-1.5">
+        <div className="bg-primary/10 rounded-sm p-1.5">
           <Egg size={16} className="text-primary" />
         </div>
       ),
     },
     {
-      title: "Ovos Trincados no Mês",
+      title: "Bandejas ",
       amount: 0,
       icon: (
-        <div className="rounded-sm bg-primary/10 p-1.5">
+        <div className="bg-primary/10 rounded-sm p-1.5">
+          <LayoutGrid size={16} className="text-primary" />
+        </div>
+      ),
+    },
+    {
+      title: "Ovos Sobrados ",
+      amount: 0,
+      icon: (
+        <div className="bg-primary/10 rounded-sm p-1.5">
+          <Egg size={16} className="text-primary" />
+        </div>
+      ),
+    },
+    {
+      title: "Ovos Trincados ",
+      amount: 0,
+      icon: (
+        <div className="bg-primary/10 rounded-sm p-1.5">
           <EggOff size={16} className="text-primary" />
         </div>
       ),
     },
     {
-      title: "Rações Usadas no Mês",
+      title: "Rações Usadas ",
       amount: 0,
       icon: (
-        <div className="rounded-sm bg-primary/10 p-1.5">
+        <div className="bg-primary/10 rounded-sm p-1.5">
           <Wheat size={16} className="text-primary" />
         </div>
       ),
     },
     {
-      title: "Aves Mortas no Mês",
+      title: "Aves Mortas ",
       amount: 0,
       icon: (
-        <div className="rounded-sm bg-primary/10 p-1.5">
+        <div className="bg-primary/10 rounded-sm p-1.5">
           <Bird size={16} className="text-primary" />
         </div>
       ),
@@ -128,7 +147,7 @@ export default async function DashboardPage({
           <PageActions>
             <div className="flex w-full flex-col justify-end gap-2">
               <div className="flex w-full flex-col gap-2 xl:flex-row xl:justify-end">
-                <div className="flex w-full flex-row gap-2 items-end justify-end">
+                <div className="flex w-full flex-row items-end justify-end gap-2">
                   <RangeDatePicker />
                 </div>
               </div>
@@ -140,7 +159,7 @@ export default async function DashboardPage({
             <div className="flex h-full w-full flex-col gap-6 xl:flex-row">
               <div className="flex h-full flex-1 flex-row gap-6">
                 <div className="flex w-full flex-col gap-6">
-                  <div className="grid w-full grid-cols-1 gap-4 min-[520px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+                  <div className="grid w-full grid-cols-1 gap-4 min-[520px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
                     {summary.map((item) => (
                       <SummaryCard
                         className="gap-2 py-4"
@@ -155,6 +174,7 @@ export default async function DashboardPage({
                     <DashboardCharts
                       monthlyProductionData={monthlyProductionData}
                       startFrom={String(currentYear)}
+                      warehouses={warehouses}
                     />
 
                     {/* <DashboardPieCharts
