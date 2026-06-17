@@ -142,7 +142,7 @@ export function UpsertBatchDialog({
           )}
         </Field>
 
-        <FieldGroup className="grid grid-cols-2 gap-4 w-full">
+        <FieldGroup className="grid w-full grid-cols-2 gap-4">
           <Field data-invalid={!!form.formState.errors.quantity}>
             <FieldLabel>Quantidade de Aves</FieldLabel>
             <Input
