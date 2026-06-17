@@ -70,8 +70,16 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const capitalize = (text: string) =>
-  text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+const MONTH_SHORT: Record<number, string> = {
+  1: "Jan", 2: "Fev", 3: "Mar", 4: "Abr", 5: "Mai", 6: "Jun",
+  7: "Jul", 8: "Ago", 9: "Set", 10: "Out", 11: "Nov", 12: "Dez",
+};
+
+const MONTH_FULL: Record<number, string> = {
+  1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril", 5: "Maio",
+  6: "Junho", 7: "Julho", 8: "Agosto", 9: "Setembro", 10: "Outubro",
+  11: "Novembro", 12: "Dezembro",
+};
 
 export function MonthlyProductionChart({
   monthlyProductionData,
@@ -148,7 +156,7 @@ export function MonthlyProductionChart({
     );
 
     return {
-      date: capitalize(dayjs(`${monthAndYear}-01`).format("MMM")),
+      date: MONTH_SHORT[Number(monthAndYear.split("-")[1])],
       fulldate: monthAndYear,
       traysProduced: dataForMonth?.traysProduced ?? 0,
       eggsLeftover: dataForMonth?.eggsLeftover ?? 0,
@@ -284,9 +292,11 @@ export function MonthlyProductionChart({
                       const monthStr = currentPayload[0].payload?.fulldate as
                         | string
                         | undefined;
-                      return monthStr
-                        ? capitalize(dayjs(`${monthStr}-01`).format("MMMM"))
-                        : currentLabel;
+                      if (monthStr) {
+                        const monthNum = Number(monthStr.split("-")[1]);
+                        return MONTH_FULL[monthNum] ?? currentLabel;
+                      }
+                      return currentLabel;
                     }
                     return currentLabel;
                   }}

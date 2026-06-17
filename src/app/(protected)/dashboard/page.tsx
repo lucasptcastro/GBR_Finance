@@ -18,13 +18,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-// import { DateRangePreset } from "@/components/ui/date-range-preset";
-// import { RangeDatePicker } from "@/components/ui/range-date-picker";
 import { auth } from "@/lib/auth";
 import { Bird, Egg, EggOff, LayoutGrid, Wheat } from "lucide-react";
 import { SummaryCard } from "../_components/summary-card";
 import { getMonthlyProductionByYear } from "./_data/get-monthly-production-by-year";
 import { DashboardCharts } from "./_components/dashboard-charts";
+import { RangeDatePicker } from "../_components/range-date-picker";
 
 interface DashboardPageProps {
   searchParams: Promise<{
@@ -44,6 +43,8 @@ export default async function DashboardPage({
     redirect("/");
   }
 
+  const { from, to } = await searchParams;
+
   const currentYear = new Date().getFullYear();
   const monthlyProductionData = await getMonthlyProductionByYear(currentYear);
 
@@ -52,8 +53,8 @@ export default async function DashboardPage({
       title: "Bandejas no Mês",
       amount: 0,
       icon: (
-        <div className="rounded-sm bg-green-500/10 p-1.5">
-          <LayoutGrid size={16} className="text-green-500" />
+        <div className="rounded-sm bg-primary/10 p-1.5">
+          <LayoutGrid size={16} className="text-primary" />
         </div>
       ),
     },
@@ -61,8 +62,8 @@ export default async function DashboardPage({
       title: "Ovos Sobrados no Mês",
       amount: 0,
       icon: (
-        <div className="rounded-sm bg-yellow-500/10 p-1.5">
-          <Egg size={16} className="text-yellow-500" />
+        <div className="rounded-sm bg-primary/10 p-1.5">
+          <Egg size={16} className="text-primary" />
         </div>
       ),
     },
@@ -70,8 +71,8 @@ export default async function DashboardPage({
       title: "Ovos Trincados no Mês",
       amount: 0,
       icon: (
-        <div className="rounded-sm bg-orange-500/10 p-1.5">
-          <EggOff size={16} className="text-orange-500" />
+        <div className="rounded-sm bg-primary/10 p-1.5">
+          <EggOff size={16} className="text-primary" />
         </div>
       ),
     },
@@ -79,8 +80,8 @@ export default async function DashboardPage({
       title: "Rações Usadas no Mês",
       amount: 0,
       icon: (
-        <div className="rounded-sm bg-lime-500/10 p-1.5">
-          <Wheat size={16} className="text-lime-500" />
+        <div className="rounded-sm bg-primary/10 p-1.5">
+          <Wheat size={16} className="text-primary" />
         </div>
       ),
     },
@@ -88,8 +89,8 @@ export default async function DashboardPage({
       title: "Aves Mortas no Mês",
       amount: 0,
       icon: (
-        <div className="rounded-sm bg-red-500/10 p-1.5">
-          <Bird size={16} className="text-red-500" />
+        <div className="rounded-sm bg-primary/10 p-1.5">
+          <Bird size={16} className="text-primary" />
         </div>
       ),
     },
@@ -125,7 +126,13 @@ export default async function DashboardPage({
             </PageDescription>
           </PageHeaderContent>
           <PageActions>
-            <div className="flex w-full flex-col justify-end gap-2"></div>
+            <div className="flex w-full flex-col justify-end gap-2">
+              <div className="flex w-full flex-col gap-2 xl:flex-row xl:justify-end">
+                <div className="flex w-full flex-row gap-2 items-end justify-end">
+                  <RangeDatePicker />
+                </div>
+              </div>
+            </div>
           </PageActions>
         </PageHeader>
         <PageContent>
