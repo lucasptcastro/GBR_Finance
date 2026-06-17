@@ -114,7 +114,7 @@ export function UpsertBatchDialog({
   };
 
   return (
-    <DialogContent className="max-w-md">
+    <DialogContent>
       <DialogHeader>
         <DialogTitle>
           {isEditing ? "Editar Lote" : "Novo Lote de Aves"}
@@ -142,7 +142,7 @@ export function UpsertBatchDialog({
           )}
         </Field>
 
-        <FieldGroup className="grid grid-cols-2 gap-4">
+        <FieldGroup className="grid grid-cols-2 gap-4 w-full">
           <Field data-invalid={!!form.formState.errors.quantity}>
             <FieldLabel>Quantidade de Aves</FieldLabel>
             <Input

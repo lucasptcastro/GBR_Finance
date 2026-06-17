@@ -30,7 +30,9 @@ export function MonthSelector() {
   const navigate = (offset: number) => {
     const next = new Date(current.getFullYear(), current.getMonth() + offset, 1);
     const key = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`;
-    router.push(`${pathname}?month=${key}`);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("month", key);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (

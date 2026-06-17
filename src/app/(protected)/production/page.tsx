@@ -24,10 +24,12 @@ import { auth } from "@/lib/auth";
 import { SummaryCard } from "../users/_components/summary-card";
 import { MonthSelector } from "./_components/month-selector";
 import { ProductionTable } from "./_components/production-table";
+import { WarehouseSelector } from "./_components/warehouse-selector";
 import { getEggProduction } from "./_data/get-egg-production";
+import { getWarehousesList } from "./_data/get-warehouses-list";
 
 interface ProductionPageProps {
-  searchParams: Promise<{ month?: string }>;
+  searchParams: Promise<{ month?: string; warehouse?: string }>;
 }
 
 export default async function ProductionPage({
@@ -41,7 +43,18 @@ export default async function ProductionPage({
     redirect("/");
   }
 
-  const { month } = await searchParams;
+  const { month, warehouse } = await searchParams;
+
+  const warehouses = await getWarehousesList();
+
+  if (!warehouse && warehouses.length > 0) {
+    const params = new URLSearchParams();
+    params.set("warehouse", warehouses[0].id);
+    if (month) params.set("month", month);
+    redirect(`/production?${params.toString()}`);
+  }
+
+  const productionData = await getEggProduction(month, warehouse);
 
   const {
     records,
@@ -50,7 +63,8 @@ export default async function ProductionPage({
     totalCrackedEggsThisMonth,
     totalFeedUsedThisMonth,
     totalDeadBirdsThisMonth,
-  } = await getEggProduction(month);
+    currentBirdsCount,
+  } = productionData;
 
   const summary = [
     {
@@ -98,6 +112,15 @@ export default async function ProductionPage({
         </div>
       ),
     },
+    {
+      title: "Aves no Galpão",
+      amount: currentBirdsCount.toLocaleString("pt-BR"),
+      icon: (
+        <div className="rounded-sm bg-blue-500/10 p-1.5">
+          <Bird size={16} className="text-blue-500" />
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -129,14 +152,15 @@ export default async function ProductionPage({
           </PageDescription>
         </PageHeaderContent>
         <PageActions>
-          <div className="flex w-full justify-end">
+          <div className="flex w-full items-center justify-end gap-3">
+            <WarehouseSelector warehouses={warehouses} />
             <MonthSelector />
           </div>
         </PageActions>
       </PageHeader>
 
       <PageContent>
-        <div className="grid w-full grid-cols-1 gap-6 min-[500px]:grid-cols-2 min-[750px]:grid-cols-3 min-[1100px]:grid-cols-5">
+        <div className="grid w-full grid-cols-1 gap-6 min-[500px]:grid-cols-2 min-[750px]:grid-cols-3 min-[1100px]:grid-cols-6">
           {summary.map((item) => (
             <SummaryCard
               className="gap-2 py-4"
@@ -149,7 +173,13 @@ export default async function ProductionPage({
         </div>
 
         <div className="flex flex-col space-y-6 overflow-hidden">
-          <ProductionTable records={records} />
+          {!warehouse ? (
+            <div className="text-muted-foreground flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-16">
+              <p className="text-sm font-medium">Selecione um galpão para ver os dados de produção.</p>
+            </div>
+          ) : (
+            <ProductionTable records={records} warehouseId={warehouse} />
+          )}
         </div>
       </PageContent>
     </PageContainer>

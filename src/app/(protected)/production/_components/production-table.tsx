@@ -58,9 +58,10 @@ function toRowId(row: EggProductionDisplayRow): string {
 
 interface ProductionTableProps {
   records: EggProductionDisplayRow[];
+  warehouseId?: string;
 }
 
-export function ProductionTable({ records }: ProductionTableProps) {
+export function ProductionTable({ records, warehouseId }: ProductionTableProps) {
   const [localRecords, setLocalRecords] = useState(records);
   const [globalFilter, setGlobalFilter] = useState("");
   const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
@@ -119,14 +120,18 @@ export function ProductionTable({ records }: ProductionTableProps) {
       );
       setEditingCell(null);
 
+      const dateValue =
+        row.date instanceof Date ? row.date : new Date(row.date as string);
+
       upsertAction.execute({
         id: row.id,
-        date: row.date,
+        date: dateValue,
         traysProduced: col === "traysProduced" ? newValue : row.traysProduced,
         eggsLeftover: col === "eggsLeftover" ? newValue : row.eggsLeftover,
         crackedEggs: col === "crackedEggs" ? newValue : row.crackedEggs,
         feedUsed: col === "feedUsed" ? newValue : row.feedUsed,
         deadBirds: col === "deadBirds" ? newValue : row.deadBirds,
+        warehouseId,
       });
     },
     [editingCell, upsertAction],

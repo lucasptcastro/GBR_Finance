@@ -40,6 +40,7 @@ export const upsertEggProduction = protectedActionClient
         crackedEggs: data.crackedEggs,
         feedUsed: data.feedUsed,
         deadBirds: data.deadBirds,
+        warehouseId: data.warehouseId,
       });
     }
 

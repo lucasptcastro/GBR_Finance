@@ -1,7 +1,7 @@
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 import { db } from "@/db";
-import { eggProductionTable } from "@/db/schema";
+import { birdBatchesTable, eggProductionTable } from "@/db/schema";
 
 export type EggProductionDisplayRow = {
   id?: string;
@@ -25,12 +25,35 @@ function toDate(value: Date | string): Date {
   );
 }
 
-/** month = "YYYY-MM". Falls back to current month if omitted. */
-export async function getEggProduction(month?: string) {
-  const dbRecords = await db
-    .select()
-    .from(eggProductionTable)
-    .orderBy(desc(eggProductionTable.date));
+/** month = "YYYY-MM". warehouseId = UUID. Falls back to current month if omitted. Requires warehouseId to return records. */
+export async function getEggProduction(month?: string, warehouseId?: string) {
+  if (!warehouseId) {
+    return {
+      records: [],
+      totalTraysThisMonth: 0,
+      totalEggsLeftoverThisMonth: 0,
+      totalCrackedEggsThisMonth: 0,
+      totalFeedUsedThisMonth: 0,
+      totalDeadBirdsThisMonth: 0,
+      currentBirdsCount: 0,
+    };
+  }
+
+  const [dbRecords, batchRows, deadRows] = await Promise.all([
+    db
+      .select()
+      .from(eggProductionTable)
+      .where(eq(eggProductionTable.warehouseId, warehouseId))
+      .orderBy(desc(eggProductionTable.date)),
+    db
+      .select({ quantity: birdBatchesTable.quantity })
+      .from(birdBatchesTable)
+      .where(eq(birdBatchesTable.warehouseId, warehouseId)),
+    db
+      .select({ deadBirds: eggProductionTable.deadBirds })
+      .from(eggProductionTable)
+      .where(eq(eggProductionTable.warehouseId, warehouseId)),
+  ]);
 
   const now = new Date();
   let targetYear: number;
@@ -112,6 +135,10 @@ export async function getEggProduction(month?: string) {
     0,
   );
 
+  const totalBirdsFromBatches = batchRows.reduce((s, r) => s + r.quantity, 0);
+  const totalDeadBirdsAllTime = deadRows.reduce((s, r) => s + r.deadBirds, 0);
+  const currentBirdsCount = totalBirdsFromBatches - totalDeadBirdsAllTime;
+
   return {
     records: targetMonthRows,
     totalTraysThisMonth,
@@ -119,5 +146,6 @@ export async function getEggProduction(month?: string) {
     totalCrackedEggsThisMonth,
     totalFeedUsedThisMonth,
     totalDeadBirdsThisMonth,
+    currentBirdsCount,
   };
 }

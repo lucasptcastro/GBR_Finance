@@ -76,7 +76,7 @@ export function BatchRow({ batch, warehouseId, warehouseName }: BatchRowProps) {
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent className="w-full" align="end">
               <DropdownMenuItem onClick={() => setEditOpen(true)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Editar Lote
