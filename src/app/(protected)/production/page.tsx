@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { auth } from "@/lib/auth";
 
-import { SummaryCard } from "../users/_components/summary-card";
+import { SummaryCard } from "../_components/summary-card";
 import { MonthSelector } from "./_components/month-selector";
 import { ProductionTable } from "./_components/production-table";
 import { WarehouseSelector } from "./_components/warehouse-selector";
@@ -175,7 +175,9 @@ export default async function ProductionPage({
         <div className="flex flex-col space-y-6 overflow-hidden">
           {!warehouse ? (
             <div className="text-muted-foreground flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-16">
-              <p className="text-sm font-medium">Selecione um galpão para ver os dados de produção.</p>
+              <p className="text-sm font-medium">
+                Selecione um galpão para ver os dados de produção.
+              </p>
             </div>
           ) : (
             <ProductionTable records={records} warehouseId={warehouse} />

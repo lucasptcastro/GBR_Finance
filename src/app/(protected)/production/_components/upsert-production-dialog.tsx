@@ -38,11 +38,11 @@ interface UpsertProductionDialogProps {
 const formSchema = z.object({
   id: z.string().uuid().optional(),
   date: z.date(),
-  traysProduced: z.coerce.number().int().min(0),
-  eggsLeftover: z.coerce.number().int().min(0),
-  crackedEggs: z.coerce.number().int().min(0),
-  feedUsed: z.coerce.number().int().min(0),
-  deadBirds: z.coerce.number().int().min(0),
+  traysProduced: z.number().int().min(0),
+  eggsLeftover: z.number().int().min(0),
+  crackedEggs: z.number().int().min(0),
+  feedUsed: z.number().int().min(0),
+  deadBirds: z.number().int().min(0),
 });
 
 type FormData = z.infer<typeof formSchema>;

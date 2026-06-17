@@ -23,7 +23,7 @@ import { getRole } from "@/data/get-role";
 import { auth } from "@/lib/auth";
 
 import { AddUserButton } from "./_components/add-user-button";
-import { SummaryCard } from "./_components/summary-card";
+import { SummaryCard } from "../_components/summary-card";
 import { UsersTable } from "./_components/users-table";
 import { getUsers } from "./_data/get-users";
 

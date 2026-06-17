@@ -21,6 +21,10 @@ import {
 // import { DateRangePreset } from "@/components/ui/date-range-preset";
 // import { RangeDatePicker } from "@/components/ui/range-date-picker";
 import { auth } from "@/lib/auth";
+import { Bird, Egg, EggOff, LayoutGrid, Wheat } from "lucide-react";
+import { SummaryCard } from "../_components/summary-card";
+import { getMonthlyProductionByYear } from "./_data/get-monthly-production-by-year";
+import { DashboardCharts } from "./_components/dashboard-charts";
 
 interface DashboardPageProps {
   searchParams: Promise<{
@@ -39,6 +43,57 @@ export default async function DashboardPage({
   if (!session?.user) {
     redirect("/");
   }
+
+  const currentYear = new Date().getFullYear();
+  const monthlyProductionData = await getMonthlyProductionByYear(currentYear);
+
+  const summary = [
+    {
+      title: "Bandejas no Mês",
+      amount: 0,
+      icon: (
+        <div className="rounded-sm bg-green-500/10 p-1.5">
+          <LayoutGrid size={16} className="text-green-500" />
+        </div>
+      ),
+    },
+    {
+      title: "Ovos Sobrados no Mês",
+      amount: 0,
+      icon: (
+        <div className="rounded-sm bg-yellow-500/10 p-1.5">
+          <Egg size={16} className="text-yellow-500" />
+        </div>
+      ),
+    },
+    {
+      title: "Ovos Trincados no Mês",
+      amount: 0,
+      icon: (
+        <div className="rounded-sm bg-orange-500/10 p-1.5">
+          <EggOff size={16} className="text-orange-500" />
+        </div>
+      ),
+    },
+    {
+      title: "Rações Usadas no Mês",
+      amount: 0,
+      icon: (
+        <div className="rounded-sm bg-lime-500/10 p-1.5">
+          <Wheat size={16} className="text-lime-500" />
+        </div>
+      ),
+    },
+    {
+      title: "Aves Mortas no Mês",
+      amount: 0,
+      icon: (
+        <div className="rounded-sm bg-red-500/10 p-1.5">
+          <Bird size={16} className="text-red-500" />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -78,11 +133,40 @@ export default async function DashboardPage({
             <div className="flex h-full w-full flex-col gap-6 xl:flex-row">
               <div className="flex h-full flex-1 flex-row gap-6">
                 <div className="flex w-full flex-col gap-6">
-                  <div className="flex flex-col gap-6"></div>
+                  <div className="grid w-full grid-cols-1 gap-4 min-[520px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+                    {summary.map((item) => (
+                      <SummaryCard
+                        className="gap-2 py-4"
+                        key={item.title}
+                        icon={item.icon}
+                        title={item.title}
+                        amount={item.amount}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex flex-col gap-6">
+                    <DashboardCharts
+                      monthlyProductionData={monthlyProductionData}
+                      startFrom={String(currentYear)}
+                    />
+
+                    {/* <DashboardPieCharts
+                      bankAccountsSummary={bankAccountsSummary}
+                      typesPercentage={typesPercentage}
+                      incomeAllocationPercentage={incomeAllocationPercentage}
+                      depositsTotal={depositsTotal}
+                      investmentsTotal={investmentsTotal}
+                      expensesTotal={expensesTotal}
+                    /> */}
+                  </div>
                 </div>
               </div>
 
-              <div className="max-h-full w-full flex-1 xl:max-w-[300px]"></div>
+              <div className="max-h-full w-full flex-1 xl:max-w-[300px]">
+                {/* <ExpensesPerCategory
+                  expensesPerCategory={totalExpensePerCategory}
+                /> */}
+              </div>
             </div>
           </div>
         </PageContent>
