@@ -1,6 +1,11 @@
-import { Bird } from "lucide-react";
+import { Bird, Skull, TrendingDown } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface BirdsSummaryCardProps {
   birdsAvailable: number;
@@ -24,23 +29,31 @@ export function BirdsSummaryCard({
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-bold">
-          {birdsAvailable.toLocaleString("pt-BR")}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-2xl font-bold">
+            {birdsAvailable.toLocaleString("pt-BR")}
+          </p>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-1">
+                <TrendingDown className="size-4 text-red-500" />
+                <span className="font-medium text-red-500">
+                  {mortalityPercentage.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 1,
+                  })}
+                  %
+                </span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Percentual mortalidade de aves</TooltipContent>
+          </Tooltip>
+        </div>
         <p className="text-muted-foreground mt-2 text-sm">
           Total cadastrado:{" "}
-          <span className="font-medium text-foreground">
+          <span className="text-foreground font-medium">
             {totalBirdsRegistered.toLocaleString("pt-BR")}
-          </span>
-        </p>
-        <p className="text-muted-foreground text-sm">
-          Mortalidade:{" "}
-          <span className="font-medium text-foreground">
-            {mortalityPercentage.toLocaleString("pt-BR", {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 1,
-            })}
-            %
           </span>
         </p>
       </CardContent>
