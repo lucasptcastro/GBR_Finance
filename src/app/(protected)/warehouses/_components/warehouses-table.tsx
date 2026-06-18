@@ -35,6 +35,7 @@ export function WarehousesTable({ warehouses }: WarehousesTableProps) {
             <TableHead>Galpão / Lote</TableHead>
             <TableHead>Quantidade</TableHead>
             <TableHead>Data de Entrada</TableHead>
+            <TableHead>Idade de Entrada</TableHead>
             <TableHead>Idade Atual</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>

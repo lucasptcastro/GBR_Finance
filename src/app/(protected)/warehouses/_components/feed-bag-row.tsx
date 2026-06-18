@@ -61,6 +61,7 @@ export function FeedBagRow({
           {new Date(feedBag.date).toLocaleDateString("pt-BR")}
         </TableCell>
         <TableCell />
+        <TableCell />
         <TableCell className="text-right">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

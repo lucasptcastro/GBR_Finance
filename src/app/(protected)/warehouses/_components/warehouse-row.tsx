@@ -91,6 +91,7 @@ export function WarehouseRow({ warehouse }: WarehouseRowProps) {
         </TableCell>
         <TableCell />
         <TableCell />
+        <TableCell />
         <TableCell className="text-right">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -150,7 +151,7 @@ export function WarehouseRow({ warehouse }: WarehouseRowProps) {
         warehouse.feedBags.length === 0 && (
           <TableRow className="bg-muted/10">
             <TableCell
-              colSpan={5}
+              colSpan={6}
               className="text-muted-foreground pl-12 text-sm italic"
             >
               Nenhum lote ou ração cadastrada neste galpão.

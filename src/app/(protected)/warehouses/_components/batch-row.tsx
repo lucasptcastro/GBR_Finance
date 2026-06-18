@@ -1,5 +1,6 @@
 "use client";
 
+import dayjs from "dayjs";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
@@ -31,15 +32,22 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import type { BirdBatchWithAge } from "../_data/get-warehouses";
 import { UpsertBatchDialog } from "./upsert-batch-dialog";
 
-function formatAge(months: number): string {
-  if (months < 1) return "menos de 1 mês";
-  const years = Math.floor(months / 12);
-  const remainingMonths = months % 12;
+function formatIntakeAge(months: number): string {
+  return `${months} ${months === 1 ? "mês" : "meses"}`;
+}
 
-  if (years === 0)
-    return `${remainingMonths} ${remainingMonths === 1 ? "mês" : "meses"}`;
-  if (remainingMonths === 0) return `${years} ${years === 1 ? "ano" : "anos"}`;
-  return `${years} ${years === 1 ? "ano" : "anos"} e ${remainingMonths} ${remainingMonths === 1 ? "mês" : "meses"}`;
+function formatCurrentAge(intakeDate: Date, ageAtIntakeMonths: number): string {
+  const virtualBirth = dayjs(intakeDate).subtract(ageAtIntakeMonths, "month");
+  const today = dayjs();
+  const months = today.diff(virtualBirth, "month");
+  const days = today.diff(virtualBirth.add(months, "month"), "day");
+
+  const monthPart = `${months} ${months === 1 ? "mês" : "meses"}`;
+  const dayPart = `${days} ${days === 1 ? "dia" : "dias"}`;
+
+  if (months === 0) return dayPart;
+  if (days === 0) return monthPart;
+  return `${monthPart} e ${dayPart}`;
 }
 
 interface BatchRowProps {
@@ -66,8 +74,11 @@ export function BatchRow({ batch, warehouseId, warehouseName }: BatchRowProps) {
         <TableCell>
           {new Date(batch.intakeDate).toLocaleDateString("pt-BR")}
         </TableCell>
+        <TableCell>{formatIntakeAge(batch.ageAtIntakeMonths)}</TableCell>
         <TableCell>
-          <Badge variant="secondary">{formatAge(batch.currentAgeMonths)}</Badge>
+          <Badge variant="secondary">
+            {formatCurrentAge(batch.intakeDate, batch.ageAtIntakeMonths)}
+          </Badge>
         </TableCell>
         <TableCell className="text-right">
           <DropdownMenu>

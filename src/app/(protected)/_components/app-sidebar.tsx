@@ -77,60 +77,60 @@ const items = [
     ],
     permissions: ["admin", "member"],
   },
-  {
-    group: "Financeiro",
-    items: [
-      {
-        title: "Contas a receber",
-        url: "/",
-        icon: HandArrowDownIcon,
-      },
-      {
-        title: "Contas a pagar",
-        url: "/",
-        icon: HandArrowUpIcon,
-      },
-      {
-        title: "Contas bancárias",
-        url: "/",
-        icon: BankIcon,
-      },
-    ],
-    permissions: ["admin", "member"],
-  },
-  {
-    group: "Vendas",
-    items: [
-      {
-        title: "Emissão Nota Fiscal",
-        url: "/",
-        icon: ReceiptIcon,
-      },
-    ],
-    permissions: ["admin", "member"],
-  },
-  {
-    group: "Novidades",
-    items: [
-      {
-        title: "O que há de novo",
-        url: "/updates",
-        icon: MegaphoneIcon,
-      },
-    ],
-    permissions: ["admin", "member"],
-  },
-  {
-    group: "Sistema",
-    items: [
-      {
-        title: "Usuários",
-        url: "/users",
-        icon: UsersIcon,
-      },
-    ],
-    permissions: ["admin"],
-  },
+  // {
+  //   group: "Financeiro",
+  //   items: [
+  //     {
+  //       title: "Contas a receber",
+  //       url: "/",
+  //       icon: HandArrowDownIcon,
+  //     },
+  //     {
+  //       title: "Contas a pagar",
+  //       url: "/",
+  //       icon: HandArrowUpIcon,
+  //     },
+  //     {
+  //       title: "Contas bancárias",
+  //       url: "/",
+  //       icon: BankIcon,
+  //     },
+  //   ],
+  //   permissions: ["admin", "member"],
+  // },
+  // {
+  //   group: "Vendas",
+  //   items: [
+  //     {
+  //       title: "Emissão Nota Fiscal",
+  //       url: "/",
+  //       icon: ReceiptIcon,
+  //     },
+  //   ],
+  //   permissions: ["admin", "member"],
+  // },
+  // {
+  //   group: "Novidades",
+  //   items: [
+  //     {
+  //       title: "O que há de novo",
+  //       url: "/updates",
+  //       icon: MegaphoneIcon,
+  //     },
+  //   ],
+  //   permissions: ["admin", "member"],
+  // },
+  // {
+  //   group: "Sistema",
+  //   items: [
+  //     {
+  //       title: "Usuários",
+  //       url: "/users",
+  //       icon: UsersIcon,
+  //     },
+  //   ],
+  //   permissions: ["admin"],
+  // },
 ];
 
 export function AppSidebar({ userRole, appVersion }: AppSidebarProps) {
