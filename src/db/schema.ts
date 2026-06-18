@@ -394,6 +394,7 @@ export const warehousesRelations = relations(
       references: [userTable.id],
     }),
     batches: many(birdBatchesTable),
+    feedBags: many(feedBagsTable),
   }),
 );
 
@@ -431,6 +432,37 @@ export const birdBatchesRelations = relations(birdBatchesTable, ({ one }) => ({
 }));
 
 /* -------------------------------------------------------------------------- */
+/*                                 Feed Bags                                  */
+/* -------------------------------------------------------------------------- */
+
+export const feedBagsTable = pgTable("feed_bags", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  quantity: integer("quantity").notNull(),
+  date: date("date", { mode: "date" }).notNull(),
+  warehouseId: uuid("warehouse_id")
+    .notNull()
+    .references(() => warehousesTable.id, { onDelete: "cascade" }),
+  createdBy: text("created_by").references(() => userTable.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export const feedBagsRelations = relations(feedBagsTable, ({ one }) => ({
+  warehouse: one(warehousesTable, {
+    fields: [feedBagsTable.warehouseId],
+    references: [warehousesTable.id],
+  }),
+  creator: one(userTable, {
+    fields: [feedBagsTable.createdBy],
+    references: [userTable.id],
+  }),
+}));
+
+/* -------------------------------------------------------------------------- */
 /*                                 Relations                                  */
 /* -------------------------------------------------------------------------- */
 
@@ -440,6 +472,7 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   bankAccounts: many(bankAccountsTable),
   warehouses: many(warehousesTable),
   birdBatches: many(birdBatchesTable),
+  feedBags: many(feedBagsTable),
   role: one(rolesTable, {
     fields: [userTable.roleId],
     references: [rolesTable.id],

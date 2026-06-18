@@ -21,10 +21,20 @@ import {
 import { auth } from "@/lib/auth";
 
 import { AddWarehouseButton } from "./_components/add-warehouse-button";
+import { BirdsSummaryCard } from "./_components/birds-summary-card";
+import { FeedBagsSummaryCard } from "./_components/feed-bags-summary-card";
+import { WarehouseSelector } from "./_components/warehouse-selector";
 import { WarehousesTable } from "./_components/warehouses-table";
 import { getWarehouses } from "./_data/get-warehouses";
+import { getWarehousesList } from "../production/_data/get-warehouses-list";
 
-export default async function WarehousesPage() {
+interface WarehousesPageProps {
+  searchParams: Promise<{ warehouse?: string }>;
+}
+
+export default async function WarehousesPage({
+  searchParams,
+}: WarehousesPageProps) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -33,7 +43,23 @@ export default async function WarehousesPage() {
     redirect("/");
   }
 
-  const warehouses = await getWarehouses();
+  const { warehouse } = await searchParams;
+
+  const [warehousesList, warehouses] = await Promise.all([
+    getWarehousesList(),
+    getWarehouses(),
+  ]);
+
+  if (!warehouse && warehousesList.length > 0) {
+    redirect(`/warehouses?warehouse=${warehousesList[0].id}`);
+  }
+
+  const selectedWarehouse = warehouses.find((w) => w.id === warehouse);
+  const feedBagsRemaining = selectedWarehouse?.feedBagsRemaining ?? 0;
+  const totalFeedBagsRegistered = selectedWarehouse?.totalFeedBagsRegistered ?? 0;
+  const birdsAvailable = selectedWarehouse?.birdsAvailable ?? 0;
+  const totalBirdsRegistered = selectedWarehouse?.totalBirdsRegistered ?? 0;
+  const mortalityPercentage = selectedWarehouse?.mortalityPercentage ?? 0;
 
   return (
     <PageContainer>
@@ -64,13 +90,28 @@ export default async function WarehousesPage() {
           </PageDescription>
         </PageHeaderContent>
         <PageActions>
-          <div className="flex w-full justify-end">
+          <div className="flex w-full items-center justify-end gap-3">
+            <WarehouseSelector warehouses={warehousesList} />
             <AddWarehouseButton />
           </div>
         </PageActions>
       </PageHeader>
 
       <PageContent>
+        {warehouse && (
+          <div className="mb-6 grid w-full grid-cols-1 gap-6 min-[500px]:grid-cols-2 min-[750px]:grid-cols-3">
+            <FeedBagsSummaryCard
+              feedBagsRemaining={feedBagsRemaining}
+              totalFeedBagsRegistered={totalFeedBagsRegistered}
+            />
+            <BirdsSummaryCard
+              birdsAvailable={birdsAvailable}
+              totalBirdsRegistered={totalBirdsRegistered}
+              mortalityPercentage={mortalityPercentage}
+            />
+          </div>
+        )}
+
         <WarehousesTable warehouses={warehouses} />
       </PageContent>
     </PageContainer>

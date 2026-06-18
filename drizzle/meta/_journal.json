@@ -22,6 +22,13 @@
       "when": 1781554799192,
       "tag": "0002_large_cyclops",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781804441691,
+      "tag": "0003_graceful_nightmare",
+      "breakpoints": true
     }
   ]
 }

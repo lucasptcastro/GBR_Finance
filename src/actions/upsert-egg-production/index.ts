@@ -45,4 +45,5 @@ export const upsertEggProduction = protectedActionClient
     }
 
     revalidatePath("/production");
+    revalidatePath("/warehouses");
   });

@@ -36,7 +36,9 @@ import { TableCell, TableRow } from "@/components/ui/table";
 
 import type { WarehouseWithBatches } from "../_data/get-warehouses";
 import { BatchRow } from "./batch-row";
+import { FeedBagRow } from "./feed-bag-row";
 import { UpsertBatchDialog } from "./upsert-batch-dialog";
+import { UpsertFeedBagDialog } from "./upsert-feed-bag-dialog";
 import { UpsertWarehouseDialog } from "./upsert-warehouse-dialog";
 
 interface WarehouseRowProps {
@@ -48,12 +50,18 @@ export function WarehouseRow({ warehouse }: WarehouseRowProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [addBatchOpen, setAddBatchOpen] = useState(false);
+  const [addFeedBagOpen, setAddFeedBagOpen] = useState(false);
 
   const deleteAction = useAction(deleteWarehouse, {
     onSuccess: () => toast.success("Galpão removido."),
     onError: ({ error }) =>
       toast.error(error.serverError ?? "Erro ao remover galpão."),
   });
+
+  const totalFeedBags = warehouse.feedBags.reduce(
+    (sum, fb) => sum + fb.quantity,
+    0,
+  );
 
   return (
     <>
@@ -75,6 +83,11 @@ export function WarehouseRow({ warehouse }: WarehouseRowProps) {
         <TableCell className="text-muted-foreground text-sm">
           {warehouse.batches.length}{" "}
           {warehouse.batches.length === 1 ? "lote" : "lotes"}
+          {totalFeedBags > 0 && (
+            <span className="ml-2">
+              · {totalFeedBags.toLocaleString("pt-BR")} sacos
+            </span>
+          )}
         </TableCell>
         <TableCell />
         <TableCell />
@@ -89,6 +102,10 @@ export function WarehouseRow({ warehouse }: WarehouseRowProps) {
               <DropdownMenuItem onClick={() => setAddBatchOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Adicionar Lote
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setAddFeedBagOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Adicionar Ração
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setEditOpen(true)}>
@@ -118,16 +135,28 @@ export function WarehouseRow({ warehouse }: WarehouseRowProps) {
           />
         ))}
 
-      {expanded && warehouse.batches.length === 0 && (
-        <TableRow className="bg-muted/10">
-          <TableCell
-            colSpan={5}
-            className="text-muted-foreground pl-12 text-sm italic"
-          >
-            Nenhum lote cadastrado neste galpão.
-          </TableCell>
-        </TableRow>
-      )}
+      {expanded &&
+        warehouse.feedBags.map((feedBag) => (
+          <FeedBagRow
+            key={feedBag.id}
+            feedBag={feedBag}
+            warehouseId={warehouse.id}
+            warehouseName={warehouse.name}
+          />
+        ))}
+
+      {expanded &&
+        warehouse.batches.length === 0 &&
+        warehouse.feedBags.length === 0 && (
+          <TableRow className="bg-muted/10">
+            <TableCell
+              colSpan={5}
+              className="text-muted-foreground pl-12 text-sm italic"
+            >
+              Nenhum lote ou ração cadastrada neste galpão.
+            </TableCell>
+          </TableRow>
+        )}
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <UpsertWarehouseDialog
@@ -141,6 +170,15 @@ export function WarehouseRow({ warehouse }: WarehouseRowProps) {
         <UpsertBatchDialog
           isOpen={addBatchOpen}
           setIsOpen={setAddBatchOpen}
+          warehouseId={warehouse.id}
+          warehouseName={warehouse.name}
+        />
+      </Dialog>
+
+      <Dialog open={addFeedBagOpen} onOpenChange={setAddFeedBagOpen}>
+        <UpsertFeedBagDialog
+          isOpen={addFeedBagOpen}
+          setIsOpen={setAddFeedBagOpen}
           warehouseId={warehouse.id}
           warehouseName={warehouse.name}
         />
