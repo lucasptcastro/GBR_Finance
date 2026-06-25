@@ -77,27 +77,27 @@ const items = [
     ],
     permissions: ["admin", "member"],
   },
-  // {
-  //   group: "Financeiro",
-  //   items: [
-  //     {
-  //       title: "Contas a receber",
-  //       url: "/",
-  //       icon: HandArrowDownIcon,
-  //     },
-  //     {
-  //       title: "Contas a pagar",
-  //       url: "/",
-  //       icon: HandArrowUpIcon,
-  //     },
-  //     {
-  //       title: "Contas bancárias",
-  //       url: "/",
-  //       icon: BankIcon,
-  //     },
-  //   ],
-  //   permissions: ["admin", "member"],
-  // },
+  {
+    group: "Financeiro",
+    items: [
+      {
+        title: "Contas bancárias",
+        url: "/bank-accounts",
+        icon: BankIcon,
+      },
+      {
+        title: "Contas a receber",
+        url: "/",
+        icon: HandArrowDownIcon,
+      },
+      {
+        title: "Contas a pagar",
+        url: "/",
+        icon: HandArrowUpIcon,
+      },
+    ],
+    permissions: ["admin", "member"],
+  },
   // {
   //   group: "Vendas",
   //   items: [

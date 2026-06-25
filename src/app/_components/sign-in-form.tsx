@@ -21,7 +21,6 @@ import { authClient } from "@/lib/auth-client";
 import { Controller, useForm } from "react-hook-form";
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -130,25 +129,26 @@ export function SignInForm({ appVersion }: SignInFormProps) {
                   </Field>
                 )}
               />
+
+              <Controller
+                name="password"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Senha</FieldLabel>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Digite sua senha"
+                      type="password"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
             </FieldGroup>
-            <Controller
-              name="password"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Senha</FieldLabel>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Digite sua senha"
-                    type="password"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
             <Button type="submit" className="w-full">
@@ -166,11 +166,11 @@ export function SignInForm({ appVersion }: SignInFormProps) {
             >
               Esqueci minha senha
             </Button>
+            <span className="text-muted-foreground text-center text-xs">
+              Versão {appVersion}
+            </span>
           </CardFooter>
         </form>
-        <span className="text-muted-foreground text-center text-xs">
-          Versão {appVersion}
-        </span>
       </Card>
     </div>
   );
