@@ -1,4 +1,5 @@
-import { Landmark } from "lucide-react";
+import { eq, sql } from "drizzle-orm";
+import { DollarSign, Landmark } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -20,11 +21,19 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { db } from "@/db";
+import { bankAccountsTable, transactionsTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 import { SummaryCard } from "../_components/summary-card";
 import { AddBankAccountButton } from "./_components/add-bank-account-button";
 import { BankAccountsTable } from "./_components/bank-accounts-table";
+
+function formatCurrency(amountInCents: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(amountInCents / 100);
+}
 
 export default async function BankAccountsPage() {
   const session = await auth.api.getSession({
@@ -41,6 +50,37 @@ export default async function BankAccountsPage() {
     orderBy: (bankAccountsTable, { asc }) => [asc(bankAccountsTable.name)],
   });
 
+  const txSums = await db
+    .select({
+      bankAccountId: transactionsTable.bankAccountId,
+      type: transactionsTable.type,
+      total: sql<number>`coalesce(sum(${transactionsTable.amountInCents}), 0)`,
+    })
+    .from(transactionsTable)
+    .where(eq(transactionsTable.userId, session.user.id))
+    .groupBy(transactionsTable.bankAccountId, transactionsTable.type);
+
+  const bankAccountsWithBalance = bankAccounts.map((account) => {
+    const accountTxs = txSums.filter((t) => t.bankAccountId === account.id);
+    const deposits = accountTxs.find((t) => t.type === "deposit")?.total ?? 0;
+    const expenses = accountTxs.find((t) => t.type === "expense")?.total ?? 0;
+    const investments =
+      accountTxs.find((t) => t.type === "investment")?.total ?? 0;
+
+    const computedBalanceInCents =
+      account.currentBalanceInCents +
+      Number(deposits) -
+      Number(expenses) -
+      Number(investments);
+
+    return { ...account, computedBalanceInCents };
+  });
+
+  const totalBalanceInCents = bankAccountsWithBalance.reduce(
+    (sum, a) => sum + a.computedBalanceInCents,
+    0,
+  );
+
   const bankAccountsSummary = [
     {
       title: "Total de Contas Bancárias",
@@ -48,6 +88,15 @@ export default async function BankAccountsPage() {
       icon: (
         <div className="rounded-sm bg-green-500/10 p-1.5">
           <Landmark size={16} className="text-green-500" />
+        </div>
+      ),
+    },
+    {
+      title: "Saldo Total",
+      amount: formatCurrency(totalBalanceInCents),
+      icon: (
+        <div className="rounded-sm bg-blue-500/10 p-1.5">
+          <DollarSign size={16} className="text-blue-500" />
         </div>
       ),
     },
@@ -102,7 +151,7 @@ export default async function BankAccountsPage() {
           </div>
 
           <div className="flex flex-col space-y-6 overflow-hidden">
-            <BankAccountsTable bankAccounts={bankAccounts} />
+            <BankAccountsTable bankAccounts={bankAccountsWithBalance} />
           </div>
         </PageContent>
       </PageContainer>

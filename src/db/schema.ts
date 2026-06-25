@@ -238,6 +238,7 @@ export const bankAccountsTable = pgTable("bank_accounts", {
   name: text("name").notNull(),
   color: text("color").notNull().default("#3b82f6"),
   dueDay: integer("due_day"), // dia do mês de vencimento (1-28)
+  currentBalanceInCents: integer("current_balance_in_cents").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

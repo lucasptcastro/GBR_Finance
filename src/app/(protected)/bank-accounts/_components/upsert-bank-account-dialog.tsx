@@ -41,6 +41,7 @@ const formSchema = z.object({
     message: "Cor inválida.",
   }),
   dueDay: z.number().int().min(1).max(28).optional(),
+  currentBalanceInCents: z.number().int(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -57,6 +58,7 @@ export const UpsertBankAccountDialog = ({
       name: bankAccount?.name ?? "",
       color: bankAccount?.color ?? "#3b82f6",
       dueDay: bankAccount?.dueDay ?? undefined,
+      currentBalanceInCents: bankAccount?.currentBalanceInCents ?? 0,
     },
   });
 
@@ -87,6 +89,7 @@ export const UpsertBankAccountDialog = ({
         name: bankAccount?.name ?? "",
         color: bankAccount?.color ?? "#3b82f6",
         dueDay: bankAccount?.dueDay ?? undefined,
+        currentBalanceInCents: bankAccount?.currentBalanceInCents ?? 0,
       });
     }
   }, [isOpen, bankAccount, form]);
@@ -177,6 +180,33 @@ export const UpsertBankAccountDialog = ({
                     onChange={(e) => {
                       const value = e.target.value;
                       field.onChange(value ? parseInt(value, 10) : undefined);
+                    }}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="currentBalanceInCents"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Saldo Atual (R$)</FieldLabel>
+                  <Input
+                    aria-invalid={fieldState.invalid}
+                    type="number"
+                    placeholder="Ex: 1500,00"
+                    min={0}
+                    step={0.01}
+                    value={field.value / 100}
+                    onChange={(e) => {
+                      const reais = parseFloat(e.target.value);
+                      field.onChange(
+                        isNaN(reais) ? 0 : Math.round(reais * 100),
+                      );
                     }}
                   />
                   {fieldState.invalid && (

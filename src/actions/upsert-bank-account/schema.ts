@@ -5,6 +5,7 @@ export const upsertBankAccountSchema = z.object({
   name: z.string().trim().min(1, "Nome é obrigatório"),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Cor inválida"),
   dueDay: z.number().int().min(1).max(28).optional(),
+  currentBalanceInCents: z.number().int().default(0),
 });
 
 export type UpsertBankAccountSchema = z.infer<typeof upsertBankAccountSchema>;

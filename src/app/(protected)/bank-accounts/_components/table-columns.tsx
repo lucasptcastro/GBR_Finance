@@ -4,14 +4,19 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { bankAccountsTable } from "@/db/schema";
 
 import { BankAccountColorBadge } from "./color-badge";
 import { BankAccountsTableActions } from "./table-actions";
+import { type BankAccountWithBalance } from "./bank-accounts-table";
 
-type BankAccount = typeof bankAccountsTable.$inferSelect;
+function formatCurrency(amountInCents: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(amountInCents / 100);
+}
 
-export const bankAccountColumns: ColumnDef<BankAccount>[] = [
+export const bankAccountColumns: ColumnDef<BankAccountWithBalance>[] = [
   {
     id: "select",
     header: ({ table }) => {
@@ -105,6 +110,29 @@ export const bankAccountColumns: ColumnDef<BankAccount>[] = [
             year: "numeric",
           })
         : "-";
+    },
+  },
+  {
+    id: "balance",
+    accessorKey: "computedBalanceInCents",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Saldo Atual
+          <ArrowUpDown />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const balance = row.original.computedBalanceInCents;
+      return (
+        <span className={balance < 0 ? "text-destructive" : "text-green-600"}>
+          {formatCurrency(balance)}
+        </span>
+      );
     },
   },
   {

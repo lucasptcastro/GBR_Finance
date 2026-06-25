@@ -36,6 +36,13 @@
       "when": 1781806772820,
       "tag": "0004_burly_swarm",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1782412433694,
+      "tag": "0005_yielding_kinsey_walden",
+      "breakpoints": true
     }
   ]
 }

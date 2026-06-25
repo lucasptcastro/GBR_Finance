@@ -10,10 +10,12 @@ import {
 } from "../../_components/data-table";
 import { bankAccountColumns } from "./table-columns";
 
-type BankAccountRow = typeof bankAccountsTable.$inferSelect;
+export type BankAccountWithBalance = typeof bankAccountsTable.$inferSelect & {
+  computedBalanceInCents: number;
+};
 
 interface BankAccountsTableProps {
-  bankAccounts: BankAccountRow[];
+  bankAccounts: BankAccountWithBalance[];
 }
 
 export function BankAccountsTable({ bankAccounts }: BankAccountsTableProps) {
