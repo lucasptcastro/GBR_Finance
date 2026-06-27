@@ -35,17 +35,12 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  peopleTable,
-  personCategoryEnum,
-  personSexEnum,
-  personTypeEnum,
-} from "@/db/schema";
+import { peopleTable, personSexEnum, personTypeEnum } from "@/db/schema";
 
-interface UpsertCustomerDialogProps {
+interface UpsertSupplierDialogProps {
   isOpen: boolean;
   onSuccess?: () => void;
-  customer?: typeof peopleTable.$inferSelect;
+  supplier?: typeof peopleTable.$inferSelect;
 }
 
 const formSchema = z.object({
@@ -72,7 +67,6 @@ const formSchema = z.object({
     })
     .optional(),
 
-  // Endereço
   zipCode: z.string().trim().optional(),
   state: z.string().trim().optional(),
   city: z.string().trim().optional(),
@@ -85,38 +79,38 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export const UpsertCustomerDialog = ({
+export const UpsertSupplierDialog = ({
   isOpen,
   onSuccess,
-  customer,
-}: UpsertCustomerDialogProps) => {
+  supplier,
+}: UpsertSupplierDialogProps) => {
   const form = useForm<FormData>({
     shouldUnregister: true,
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: customer?.name ?? "",
-      nickname: customer?.nickname ?? "",
-      type: customer?.type ?? "individual",
-      sex: customer?.sex ?? "male",
-      isPcd: customer?.isPcd ?? false,
-      birthDate: customer?.birthDate ?? undefined,
-      rg: customer?.rg ?? "",
-      stateRegistration: customer?.stateRegistration ?? "",
-      email: customer?.email ?? "",
-      phone: customer?.phone ?? "",
-      mobile: customer?.mobile ?? "",
-      cpf: customer?.cpf ?? "",
-      cnpj: customer?.cnpj ?? "",
-      status: customer?.status ?? "active",
-      zipCode: customer?.zipCode ?? "",
-      state: customer?.state ?? "",
-      city: customer?.city ?? "",
-      street: customer?.street ?? "",
-      number: customer?.number ?? "",
-      complement: customer?.complement ?? "",
-      neighborhood: customer?.neighborhood ?? "",
-      reference: customer?.reference ?? "",
-      observation: customer?.observation ?? "",
+      name: supplier?.name ?? "",
+      nickname: supplier?.nickname ?? "",
+      type: supplier?.type ?? "individual",
+      sex: supplier?.sex ?? "male",
+      isPcd: supplier?.isPcd ?? false,
+      birthDate: supplier?.birthDate ?? undefined,
+      rg: supplier?.rg ?? "",
+      stateRegistration: supplier?.stateRegistration ?? "",
+      email: supplier?.email ?? "",
+      phone: supplier?.phone ?? "",
+      mobile: supplier?.mobile ?? "",
+      cpf: supplier?.cpf ?? "",
+      cnpj: supplier?.cnpj ?? "",
+      status: supplier?.status ?? "active",
+      zipCode: supplier?.zipCode ?? "",
+      state: supplier?.state ?? "",
+      city: supplier?.city ?? "",
+      street: supplier?.street ?? "",
+      number: supplier?.number ?? "",
+      complement: supplier?.complement ?? "",
+      neighborhood: supplier?.neighborhood ?? "",
+      reference: supplier?.reference ?? "",
+      observation: supplier?.observation ?? "",
     },
   });
 
@@ -125,22 +119,22 @@ export const UpsertCustomerDialog = ({
   const upsertPersonAction = useAction(upsertPerson, {
     onSuccess: () => {
       toast.success(
-        customer
-          ? "Cliente atualizado com sucesso"
-          : "Cliente adicionado com sucesso",
+        supplier
+          ? "Fornecedor atualizado com sucesso"
+          : "Fornecedor adicionado com sucesso",
       );
       onSuccess?.();
     },
     onError: () => {
-      toast.error("Erro ao salvar cliente. Tente novamente.");
+      toast.error("Erro ao salvar fornecedor. Tente novamente.");
     },
   });
 
   const onSubmit = (values: FormData) => {
     upsertPersonAction.execute({
       ...values,
-      id: customer?.id,
-      category: personCategoryEnum.enumValues[0], // 'customer'
+      id: supplier?.id,
+      category: "supplier",
       status: values.status ?? "active",
     });
   };
@@ -153,31 +147,31 @@ export const UpsertCustomerDialog = ({
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        name: customer?.name ?? "",
-        nickname: customer?.nickname ?? "",
-        type: customer?.type ?? "individual",
-        sex: customer?.sex ?? "male",
-        isPcd: customer?.isPcd ?? false,
-        birthDate: customer?.birthDate ?? undefined,
-        rg: customer?.rg ?? "",
-        stateRegistration: customer?.stateRegistration ?? "",
-        email: customer?.email ?? "",
-        phone: customer?.phone ?? "",
-        mobile: customer?.mobile ?? "",
-        cpf: customer?.cpf ?? "",
-        cnpj: customer?.cnpj ?? "",
-        status: customer?.status ?? "active",
-        observation: customer?.observation ?? "",
+        name: supplier?.name ?? "",
+        nickname: supplier?.nickname ?? "",
+        type: supplier?.type ?? "individual",
+        sex: supplier?.sex ?? "male",
+        isPcd: supplier?.isPcd ?? false,
+        birthDate: supplier?.birthDate ?? undefined,
+        rg: supplier?.rg ?? "",
+        stateRegistration: supplier?.stateRegistration ?? "",
+        email: supplier?.email ?? "",
+        phone: supplier?.phone ?? "",
+        mobile: supplier?.mobile ?? "",
+        cpf: supplier?.cpf ?? "",
+        cnpj: supplier?.cnpj ?? "",
+        status: supplier?.status ?? "active",
+        observation: supplier?.observation ?? "",
       });
     }
-  }, [isOpen, customer, form]);
+  }, [isOpen, supplier, form]);
 
   return (
     <>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {customer ? "Atualizar Cliente" : "Adicionar Cliente"}
+            {supplier ? "Atualizar Fornecedor" : "Adicionar Fornecedor"}
           </DialogTitle>
           <DialogDescription>Insira as informações abaixo</DialogDescription>
         </DialogHeader>
@@ -294,7 +288,6 @@ export const UpsertCustomerDialog = ({
               />
             </div>
 
-            {/* Informações pessoais */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {personType === "individual" && (
                 <>
@@ -365,10 +358,7 @@ export const UpsertCustomerDialog = ({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel>Data de Nascimento</FieldLabel>
-                    <DatePicker
-                      value={field.value}
-                      //  onChange={field.onChange}
-                    />
+                    <DatePicker value={field.value} />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -427,7 +417,6 @@ export const UpsertCustomerDialog = ({
               />
             </div>
 
-            {/* Endereço */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold">Endereço</h3>
 
@@ -548,7 +537,6 @@ export const UpsertCustomerDialog = ({
               />
             </div>
 
-            {/* Observação */}
             <Controller
               control={form.control}
               name="observation"
@@ -569,8 +557,7 @@ export const UpsertCustomerDialog = ({
               )}
             />
 
-            {/* Status */}
-            {customer && (
+            {supplier && (
               <Controller
                 control={form.control}
                 name="status"
@@ -611,7 +598,7 @@ export const UpsertCustomerDialog = ({
                 {upsertPersonAction.isPending && (
                   <Loader2 className="animate-spin" />
                 )}
-                {customer ? "Atualizar" : "Adicionar"}
+                {supplier ? "Atualizar" : "Adicionar"}
               </Button>
             </DialogFooter>
           </FieldGroup>

@@ -40,6 +40,7 @@ import {
   ReceiptIcon,
   SignOutIcon,
   SpinnerIcon,
+  TruckIcon,
   UsersIcon,
 } from "@phosphor-icons/react";
 import { WarehouseIcon } from "lucide-react";
@@ -105,6 +106,11 @@ const items = [
         title: "Clientes",
         url: "/customers",
         icon: UsersIcon,
+      },
+      {
+        title: "Fornecedores",
+        url: "/suppliers",
+        icon: TruckIcon,
       },
     ],
     permissions: ["admin", "member"],

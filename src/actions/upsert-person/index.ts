@@ -8,6 +8,12 @@ import { protectedActionClient } from "@/lib/next-safe-action";
 
 import { upsertPersonSchema } from "./schema";
 
+function getRevalidatePath(category: string) {
+  if (category === "customer") return "/customers";
+  if (category === "supplier") return "/suppliers";
+  return "/customers";
+}
+
 export const upsertPerson = protectedActionClient
   .schema(upsertPersonSchema)
   .action(async ({ parsedInput: data }) => {
@@ -23,5 +29,5 @@ export const upsertPerson = protectedActionClient
         },
       });
 
-    revalidatePath("/customers");
+    revalidatePath(getRevalidatePath(data.category));
   });

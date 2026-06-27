@@ -35,50 +35,50 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { peopleTable } from "@/db/schema";
 
-import { UpsertCustomerDialog } from "./upsert-customer-dialog";
+import { UpsertSupplierDialog } from "./upsert-supplier-dialog";
 
-interface CustomersTableActionsProps {
-  customer: typeof peopleTable.$inferSelect;
+interface SuppliersTableActionsProps {
+  supplier: typeof peopleTable.$inferSelect;
   selectedIds?: string[];
 }
 
-export const CustomersTableActions = ({
-  customer,
+export const SuppliersTableActions = ({
+  supplier,
   selectedIds,
-}: CustomersTableActionsProps) => {
+}: SuppliersTableActionsProps) => {
   const [upsertDialogIsOpen, setUpsertDialogIsOpen] = useState(false);
 
-  const deleteCustomerAction = useAction(deletePerson, {
+  const deleteSupplierAction = useAction(deletePerson, {
     onSuccess: () => {
-      toast.success("Cliente deletado com sucesso.");
+      toast.success("Fornecedor deletado com sucesso.");
     },
     onError: () => {
-      toast.error("Erro ao deletar cliente.");
+      toast.error("Erro ao deletar fornecedor.");
     },
   });
 
-  const deleteCustomersAction = useAction(deletePeople, {
+  const deleteSuppliersAction = useAction(deletePeople, {
     onSuccess: () => {
-      toast.success("Clientes deletados com sucesso.");
+      toast.success("Fornecedores deletados com sucesso.");
     },
     onError: () => {
-      toast.error("Erro ao deletar clientes.");
+      toast.error("Erro ao deletar fornecedores.");
     },
   });
 
-  const handleDeleteCustomerClick = () => {
+  const handleDeleteSupplierClick = () => {
     if (selectedIds && selectedIds.length > 0) {
-      deleteCustomersAction.execute({ ids: selectedIds, category: "customer" });
+      deleteSuppliersAction.execute({ ids: selectedIds, category: "supplier" });
       return;
     }
 
-    if (!customer) return;
-    deleteCustomerAction.execute({ id: customer.id, category: "customer" });
+    if (!supplier) return;
+    deleteSupplierAction.execute({ id: supplier.id, category: "supplier" });
   };
 
   const hasMoreThanOneSelected = selectedIds && selectedIds.length > 1;
   const isDeleting =
-    deleteCustomerAction.isPending || deleteCustomersAction.isPending;
+    deleteSupplierAction.isPending || deleteSuppliersAction.isPending;
 
   return (
     <>
@@ -90,7 +90,7 @@ export const CustomersTableActions = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>{customer.name}</DropdownMenuLabel>
+            <DropdownMenuLabel>{supplier.name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => setUpsertDialogIsOpen(true)}
@@ -118,18 +118,18 @@ export const CustomersTableActions = ({
                 <AlertDialogHeader>
                   <AlertDialogTitle>
                     {selectedIds && selectedIds.length > 0
-                      ? "Tem certeza que deseja deletar os clientes selecionados?"
-                      : "Tem certeza que deseja deletar esse cliente?"}
+                      ? "Tem certeza que deseja deletar os fornecedores selecionados?"
+                      : "Tem certeza que deseja deletar esse fornecedor?"}
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    Essa ação não pode ser revertida. Isso irá deletar o cliente
-                    permanentemente.
+                    Essa ação não pode ser revertida. Isso irá deletar o
+                    fornecedor permanentemente.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={handleDeleteCustomerClick}
+                    onClick={handleDeleteSupplierClick}
                     asChild
                   >
                     <Button
@@ -147,9 +147,9 @@ export const CustomersTableActions = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <UpsertCustomerDialog
+        <UpsertSupplierDialog
           isOpen={upsertDialogIsOpen}
-          customer={customer}
+          supplier={supplier}
           onSuccess={() => setUpsertDialogIsOpen(false)}
         />
       </Dialog>
