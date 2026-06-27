@@ -98,6 +98,17 @@ const items = [
     ],
     permissions: ["admin", "member"],
   },
+  {
+    group: "Pessoas",
+    items: [
+      {
+        title: "Clientes",
+        url: "/customers",
+        icon: UsersIcon,
+      },
+    ],
+    permissions: ["admin", "member"],
+  },
   // {
   //   group: "Vendas",
   //   items: [

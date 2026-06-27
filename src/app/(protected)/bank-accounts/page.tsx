@@ -21,7 +21,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { db } from "@/db";
-import { bankAccountsTable, transactionsTable } from "@/db/schema";
+import { transactionsTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 import { SummaryCard } from "../_components/summary-card";
