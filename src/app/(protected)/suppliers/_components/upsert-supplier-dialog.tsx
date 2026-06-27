@@ -36,6 +36,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { peopleTable, personSexEnum, personTypeEnum } from "@/db/schema";
+import { parseBirthDate } from "@/helpers/format-date";
 
 interface UpsertSupplierDialogProps {
   isOpen: boolean;
@@ -93,7 +94,7 @@ export const UpsertSupplierDialog = ({
       type: supplier?.type ?? "individual",
       sex: supplier?.sex ?? "male",
       isPcd: supplier?.isPcd ?? false,
-      birthDate: supplier?.birthDate ?? undefined,
+      birthDate: parseBirthDate(supplier?.birthDate),
       rg: supplier?.rg ?? "",
       stateRegistration: supplier?.stateRegistration ?? "",
       email: supplier?.email ?? "",
@@ -152,7 +153,7 @@ export const UpsertSupplierDialog = ({
         type: supplier?.type ?? "individual",
         sex: supplier?.sex ?? "male",
         isPcd: supplier?.isPcd ?? false,
-        birthDate: supplier?.birthDate ?? undefined,
+        birthDate: parseBirthDate(supplier?.birthDate),
         rg: supplier?.rg ?? "",
         stateRegistration: supplier?.stateRegistration ?? "",
         email: supplier?.email ?? "",
@@ -358,7 +359,12 @@ export const UpsertSupplierDialog = ({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel>Data de Nascimento</FieldLabel>
-                    <DatePicker value={field.value} />
+                    <DatePicker
+                      selected={field.value ?? undefined}
+                      onSelect={(date) => {
+                        field.onChange(date ?? undefined);
+                      }}
+                    />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}

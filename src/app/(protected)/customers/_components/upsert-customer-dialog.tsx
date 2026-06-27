@@ -41,6 +41,7 @@ import {
   personSexEnum,
   personTypeEnum,
 } from "@/db/schema";
+import { parseBirthDate } from "@/helpers/format-date";
 
 interface UpsertCustomerDialogProps {
   isOpen: boolean;
@@ -99,7 +100,7 @@ export const UpsertCustomerDialog = ({
       type: customer?.type ?? "individual",
       sex: customer?.sex ?? "male",
       isPcd: customer?.isPcd ?? false,
-      birthDate: customer?.birthDate ?? undefined,
+      birthDate: parseBirthDate(customer?.birthDate),
       rg: customer?.rg ?? "",
       stateRegistration: customer?.stateRegistration ?? "",
       email: customer?.email ?? "",
@@ -158,7 +159,7 @@ export const UpsertCustomerDialog = ({
         type: customer?.type ?? "individual",
         sex: customer?.sex ?? "male",
         isPcd: customer?.isPcd ?? false,
-        birthDate: customer?.birthDate ?? undefined,
+        birthDate: parseBirthDate(customer?.birthDate),
         rg: customer?.rg ?? "",
         stateRegistration: customer?.stateRegistration ?? "",
         email: customer?.email ?? "",
@@ -366,8 +367,10 @@ export const UpsertCustomerDialog = ({
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel>Data de Nascimento</FieldLabel>
                     <DatePicker
-                      value={field.value}
-                      //  onChange={field.onChange}
+                      selected={field.value ?? undefined}
+                      onSelect={(date) => {
+                        field.onChange(date ?? undefined);
+                      }}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />

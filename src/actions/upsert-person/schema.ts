@@ -16,7 +16,7 @@ export const upsertPersonSchema = z.object({
   }),
   sex: z.enum(personSexEnum.enumValues).default("male").optional(),
   isPcd: z.boolean().default(false).optional(),
-  birthDate: z.date().optional(),
+  birthDate: z.coerce.date().optional(),
   rg: z.string().trim().optional(),
   stateRegistration: z.string().trim().optional(),
   email: z.string().trim().email().optional().or(z.literal("")),
