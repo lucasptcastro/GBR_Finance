@@ -115,17 +115,22 @@ const items = [
     ],
     permissions: ["admin", "member"],
   },
-  // {
-  //   group: "Vendas",
-  //   items: [
-  //     {
-  //       title: "Emissão Nota Fiscal",
-  //       url: "/",
-  //       icon: ReceiptIcon,
-  //     },
-  //   ],
-  //   permissions: ["admin", "member"],
-  // },
+  {
+    group: "Vendas",
+    items: [
+      {
+        title: "Vendas",
+        url: "/sales",
+        icon: ReceiptIcon,
+      },
+      {
+        title: "Crediário",
+        url: "/customers-credit",
+        icon: HandArrowDownIcon,
+      },
+    ],
+    permissions: ["admin", "member"],
+  },
   // {
   //   group: "Novidades",
   //   items: [

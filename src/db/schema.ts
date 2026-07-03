@@ -89,6 +89,20 @@ export const statusEnum = pgEnum("status", [
   "inactive", // inativo
 ]);
 
+export const salePaymentMethodEnum = pgEnum("sale_payment_method", [
+  "pix",
+  "credit_card", // cartão de crédito
+  "debit_card", // cartão de débito
+  "bank_slip", // boleto bancário
+  "crediary", // crediário
+]);
+
+export const saleStatusEnum = pgEnum("sale_status", [
+  "pending", // aguardando pagamento (crediário)
+  "partially_paid", // parcialmente pago (crediário)
+  "paid", // pago
+]);
+
 /* -------------------------------------------------------------------------- */
 /*                                Transactions                                */
 /* -------------------------------------------------------------------------- */
@@ -401,6 +415,8 @@ export const warehousesRelations = relations(
     batches: many(birdBatchesTable),
     feedBags: many(feedBagsTable),
     eggSales: many(eggSalesTable),
+    sales: many(salesTable),
+    eggStockAdjustments: many(eggStockAdjustmentsTable),
   }),
 );
 
@@ -500,6 +516,138 @@ export const eggSalesRelations = relations(eggSalesTable, ({ one }) => ({
 }));
 
 /* -------------------------------------------------------------------------- */
+/*                                   Sales                                    */
+/* -------------------------------------------------------------------------- */
+
+export const salesTable = pgTable("sales", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  invoiceNumber: integer("invoice_number").notNull(),
+  date: date("date", { mode: "date" }).notNull(),
+  traysSold: integer("trays_sold").notNull(),
+  pricePerTrayInCents: integer("price_per_tray_in_cents").notNull(),
+  totalAmountInCents: integer("total_amount_in_cents").notNull(),
+  paymentMethod: salePaymentMethodEnum("payment_method").notNull(),
+  status: saleStatusEnum("status").default("paid").notNull(),
+  notes: text("notes"),
+
+  customerId: uuid("customer_id").references(() => peopleTable.id, {
+    onDelete: "set null",
+  }),
+  warehouseId: uuid("warehouse_id")
+    .notNull()
+    .references(() => warehousesTable.id, { onDelete: "cascade" }),
+  bankAccountId: uuid("bank_account_id").references(
+    () => bankAccountsTable.id,
+    { onDelete: "set null" },
+  ),
+  createdBy: text("created_by").references(() => userTable.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export const salesRelations = relations(salesTable, ({ one, many }) => ({
+  customer: one(peopleTable, {
+    fields: [salesTable.customerId],
+    references: [peopleTable.id],
+  }),
+  warehouse: one(warehousesTable, {
+    fields: [salesTable.warehouseId],
+    references: [warehousesTable.id],
+  }),
+  bankAccount: one(bankAccountsTable, {
+    fields: [salesTable.bankAccountId],
+    references: [bankAccountsTable.id],
+  }),
+  creator: one(userTable, {
+    fields: [salesTable.createdBy],
+    references: [userTable.id],
+  }),
+  payments: many(salePaymentsTable),
+}));
+
+/* -------------------------------------------------------------------------- */
+/*                              Sale Payments                                 */
+/* -------------------------------------------------------------------------- */
+
+export const salePaymentsTable = pgTable("sale_payments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  amountInCents: integer("amount_in_cents").notNull(),
+  paymentDate: date("payment_date", { mode: "date" }).notNull(),
+  paymentMethod: salePaymentMethodEnum("payment_method").notNull(),
+  notes: text("notes"),
+
+  saleId: uuid("sale_id")
+    .notNull()
+    .references(() => salesTable.id, { onDelete: "cascade" }),
+  bankAccountId: uuid("bank_account_id").references(
+    () => bankAccountsTable.id,
+    { onDelete: "set null" },
+  ),
+  createdBy: text("created_by").references(() => userTable.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const salePaymentsRelations = relations(
+  salePaymentsTable,
+  ({ one }) => ({
+    sale: one(salesTable, {
+      fields: [salePaymentsTable.saleId],
+      references: [salesTable.id],
+    }),
+    bankAccount: one(bankAccountsTable, {
+      fields: [salePaymentsTable.bankAccountId],
+      references: [bankAccountsTable.id],
+    }),
+    creator: one(userTable, {
+      fields: [salePaymentsTable.createdBy],
+      references: [userTable.id],
+    }),
+  }),
+);
+
+/* -------------------------------------------------------------------------- */
+/*                         Egg Stock Adjustments                              */
+/* -------------------------------------------------------------------------- */
+
+export const eggStockAdjustmentsTable = pgTable("egg_stock_adjustments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  date: date("date", { mode: "date" }).notNull(),
+  quantity: integer("quantity").notNull(), // positivo = entrada, negativo = saída
+  reason: text("reason"),
+
+  warehouseId: uuid("warehouse_id")
+    .notNull()
+    .references(() => warehousesTable.id, { onDelete: "cascade" }),
+  createdBy: text("created_by").references(() => userTable.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export const eggStockAdjustmentsRelations = relations(
+  eggStockAdjustmentsTable,
+  ({ one }) => ({
+    warehouse: one(warehousesTable, {
+      fields: [eggStockAdjustmentsTable.warehouseId],
+      references: [warehousesTable.id],
+    }),
+    creator: one(userTable, {
+      fields: [eggStockAdjustmentsTable.createdBy],
+      references: [userTable.id],
+    }),
+  }),
+);
+
+/* -------------------------------------------------------------------------- */
 /*                             Better Auth                                    */
 /* -------------------------------------------------------------------------- */
 
@@ -574,6 +722,9 @@ export const userRelations = relations(userTable, ({ one, many }) => ({
   birdBatches: many(birdBatchesTable),
   feedBags: many(feedBagsTable),
   eggSales: many(eggSalesTable),
+  sales: many(salesTable),
+  salePayments: many(salePaymentsTable),
+  eggStockAdjustments: many(eggStockAdjustmentsTable),
   role: one(rolesTable, {
     fields: [userTable.roleId],
     references: [rolesTable.id],

@@ -50,6 +50,13 @@
       "when": 1782487736417,
       "tag": "0006_add_people_table",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1783092803054,
+      "tag": "0007_slow_greymalkin",
+      "breakpoints": true
     }
   ]
 }

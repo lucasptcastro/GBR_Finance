@@ -38,6 +38,7 @@ import type { WarehouseWithBatches } from "../_data/get-warehouses";
 import { BatchRow } from "./batch-row";
 import { FeedBagRow } from "./feed-bag-row";
 import { UpsertBatchDialog } from "./upsert-batch-dialog";
+import { UpsertEggStockAdjustmentDialog } from "./upsert-egg-stock-adjustment-dialog";
 import { UpsertFeedBagDialog } from "./upsert-feed-bag-dialog";
 import { UpsertWarehouseDialog } from "./upsert-warehouse-dialog";
 
@@ -51,6 +52,7 @@ export function WarehouseRow({ warehouse }: WarehouseRowProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [addBatchOpen, setAddBatchOpen] = useState(false);
   const [addFeedBagOpen, setAddFeedBagOpen] = useState(false);
+  const [addStockAdjustmentOpen, setAddStockAdjustmentOpen] = useState(false);
 
   const deleteAction = useAction(deleteWarehouse, {
     onSuccess: () => toast.success("Galpão removido."),
@@ -107,6 +109,10 @@ export function WarehouseRow({ warehouse }: WarehouseRowProps) {
               <DropdownMenuItem onClick={() => setAddFeedBagOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Adicionar Ração
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setAddStockAdjustmentOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Ajuste de Estoque
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setEditOpen(true)}>
@@ -180,6 +186,18 @@ export function WarehouseRow({ warehouse }: WarehouseRowProps) {
         <UpsertFeedBagDialog
           isOpen={addFeedBagOpen}
           setIsOpen={setAddFeedBagOpen}
+          warehouseId={warehouse.id}
+          warehouseName={warehouse.name}
+        />
+      </Dialog>
+
+      <Dialog
+        open={addStockAdjustmentOpen}
+        onOpenChange={setAddStockAdjustmentOpen}
+      >
+        <UpsertEggStockAdjustmentDialog
+          isOpen={addStockAdjustmentOpen}
+          setIsOpen={setAddStockAdjustmentOpen}
           warehouseId={warehouse.id}
           warehouseName={warehouse.name}
         />

@@ -1,7 +1,14 @@
 import { and, eq, gte, lte } from "drizzle-orm";
 
 import { db } from "@/db";
-import { birdBatchesTable, eggProductionTable, eggSalesTable, feedBagsTable } from "@/db/schema";
+import {
+  birdBatchesTable,
+  eggProductionTable,
+  eggSalesTable,
+  eggStockAdjustmentsTable,
+  feedBagsTable,
+  salesTable,
+} from "@/db/schema";
 
 const EGGS_PER_TRAY = 30;
 const KG_PER_FEED_BAG = 40;
@@ -42,8 +49,16 @@ export async function getWarehouseSummaryByDateRange(
 ): Promise<WarehouseSummary> {
   const { resolvedFrom, resolvedTo } = resolveDateRange(from, to);
 
-  const [feedBagRows, batchRows, productionRows, salesRows, allBatchRows, allDeadBirdRows] =
-    await Promise.all([
+  const [
+    feedBagRows,
+    batchRows,
+    productionRows,
+    legacySalesRows,
+    newSalesRows,
+    stockAdjustmentRows,
+    allBatchRows,
+    allDeadBirdRows,
+  ] = await Promise.all([
     db
       .select({ quantity: feedBagsTable.quantity })
       .from(feedBagsTable)
@@ -79,6 +94,7 @@ export async function getWarehouseSummaryByDateRange(
           lte(eggProductionTable.date, resolvedTo),
         ),
       ),
+    // Vendas legadas (egg_sales)
     db
       .select({ traysSold: eggSalesTable.traysSold })
       .from(eggSalesTable)
@@ -89,6 +105,22 @@ export async function getWarehouseSummaryByDateRange(
           lte(eggSalesTable.date, resolvedTo),
         ),
       ),
+    // Vendas novas (sales)
+    db
+      .select({ traysSold: salesTable.traysSold })
+      .from(salesTable)
+      .where(
+        and(
+          eq(salesTable.warehouseId, warehouseId),
+          gte(salesTable.date, resolvedFrom),
+          lte(salesTable.date, resolvedTo),
+        ),
+      ),
+    // Ajustes manuais de estoque (saldo inicial etc)
+    db
+      .select({ quantity: eggStockAdjustmentsTable.quantity })
+      .from(eggStockAdjustmentsTable)
+      .where(eq(eggStockAdjustmentsTable.warehouseId, warehouseId)),
     db
       .select({ quantity: birdBatchesTable.quantity })
       .from(birdBatchesTable)
@@ -132,13 +164,24 @@ export async function getWarehouseSummaryByDateRange(
   const totalEggs = totalEggsProduced - totalCrackedEggs;
   const approximateTrays = Math.floor(totalEggs / EGGS_PER_TRAY);
 
-  const totalTraysSold = salesRows.reduce(
+  const legacyTraysSold = legacySalesRows.reduce(
     (sum, row) => sum + row.traysSold,
     0,
   );
+  const newTraysSold = newSalesRows.reduce(
+    (sum, row) => sum + row.traysSold,
+    0,
+  );
+  const totalTraysSold = legacyTraysSold + newTraysSold;
+
+  const totalStockAdjustment = stockAdjustmentRows.reduce(
+    (sum, row) => sum + row.quantity,
+    0,
+  );
+
   const soldEggs = totalTraysSold * EGGS_PER_TRAY;
-  const stockEggs = Math.max(0, totalEggs - soldEggs);
-  const stockTrays = Math.max(0, approximateTrays - totalTraysSold);
+  const stockEggs = Math.max(0, totalEggs - soldEggs + totalStockAdjustment * EGGS_PER_TRAY);
+  const stockTrays = Math.max(0, approximateTrays - totalTraysSold + totalStockAdjustment);
 
   const flockBirdsRegistered = allBatchRows.reduce(
     (sum, row) => sum + row.quantity,
