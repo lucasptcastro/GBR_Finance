@@ -30,7 +30,10 @@ export async function GET(
   });
 
   if (!sale) {
-    return NextResponse.json({ error: "Venda não encontrada" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Venda não encontrada" },
+      { status: 404 },
+    );
   }
 
   const paidAmountInCents = sale.payments.reduce(
@@ -67,7 +70,7 @@ export async function GET(
   return new Response(arrayBuffer, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="nota-fiscal-${sale.invoiceNumber}.pdf"`,
+      "Content-Disposition": `inline; filename="pedido-${sale.invoiceNumber}.pdf"`,
     },
   });
 }

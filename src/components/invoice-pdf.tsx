@@ -418,7 +418,7 @@ export function InvoicePdf({ data }: { data: InvoicePdfData }) {
           <DottedLine />
           <Text style={styles.footerBold}>Obrigado pela preferência</Text>
           <DottedLine />
-          <Text style={styles.footerBold}>Terrrabit x Grove Solutions</Text>
+          <Text style={styles.footerBold}>Terra-Bit x Grove Solutions</Text>
         </View>
       </Page>
     </Document>
