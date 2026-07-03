@@ -57,7 +57,14 @@ export async function GET(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pdfBuffer = await renderToBuffer(element as any);
 
-  return new Response(pdfBuffer.buffer as ArrayBuffer, {
+  // pdfBuffer é um Node.js Buffer cujo .buffer pode apontar para pool maior.
+  // Copiar para ArrayBuffer novo garante bytes corretos.
+  const arrayBuffer = pdfBuffer.buffer.slice(
+    pdfBuffer.byteOffset,
+    pdfBuffer.byteOffset + pdfBuffer.byteLength,
+  ) as ArrayBuffer;
+
+  return new Response(arrayBuffer, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="nota-fiscal-${sale.invoiceNumber}.pdf"`,

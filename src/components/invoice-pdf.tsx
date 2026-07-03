@@ -1,171 +1,165 @@
 import {
   Document,
+  Line,
   Page,
   StyleSheet,
+  Svg,
   Text,
   View,
 } from "@react-pdf/renderer";
 
+const CONTENT_WIDTH = 280;
+
 const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
-    fontSize: 10,
-    padding: 40,
-    color: "#1a1a1a",
+    fontSize: 8,
+    paddingVertical: 24,
+    paddingHorizontal: 40,
+    color: "#000000",
     backgroundColor: "#ffffff",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: "#e5e7eb",
+  // ── Cabeçalho ──────────────────────────────────────────────
+  headerContainer: {
+    alignItems: "center",
+    marginBottom: 6,
+    width: CONTENT_WIDTH,
+    alignSelf: "center",
   },
   companyName: {
-    fontSize: 18,
-    fontWeight: 700,
-    color: "#111827",
+    fontFamily: "Helvetica-Bold",
+    fontSize: 11,
+    marginBottom: 1,
   },
-  companySubtitle: {
-    fontSize: 9,
-    color: "#6b7280",
-    marginTop: 2,
+  headerLine: {
+    fontSize: 8,
+    marginBottom: 1,
   },
-  invoiceLabel: {
-    fontSize: 9,
-    color: "#6b7280",
-    textAlign: "right",
+  // ── Info pedido ─────────────────────────────────────────────
+  infoContainer: {
+    width: CONTENT_WIDTH,
+    alignSelf: "center",
+    marginBottom: 4,
   },
-  invoiceNumber: {
-    fontSize: 20,
-    fontWeight: 700,
-    color: "#111827",
-    textAlign: "right",
-  },
-  section: {
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 9,
-    fontWeight: 700,
-    color: "#6b7280",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginBottom: 6,
-  },
-  row: {
+  infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 4,
+    marginBottom: 1,
   },
-  label: {
-    color: "#6b7280",
-    flex: 1,
+  infoText: {
+    fontSize: 8,
   },
-  value: {
-    color: "#111827",
-    fontWeight: 700,
-    flex: 1,
-    textAlign: "right",
+  // ── Divisória com texto ──────────────────────────────────────
+  dividerContainer: {
+    width: CONTENT_WIDTH,
+    alignSelf: "center",
+    alignItems: "center",
+    marginVertical: 4,
   },
-  tableHeader: {
+  dividerText: {
+    fontSize: 7,
+    marginBottom: 1,
+    fontWeight: "bold",
+  },
+  // ── Tabela de itens ──────────────────────────────────────────
+  tableContainer: {
+    width: CONTENT_WIDTH,
+    alignSelf: "center",
+    marginBottom: 2,
+  },
+  tableHeaderRow: {
     flexDirection: "row",
-    backgroundColor: "#f9fafb",
-    padding: "8 12",
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    borderRadius: 4,
-    marginBottom: 4,
+    paddingBottom: 2,
+    marginBottom: 2,
   },
   tableRow: {
     flexDirection: "row",
-    padding: "8 12",
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    borderRadius: 4,
+    marginBottom: 1,
   },
-  colDescription: { flex: 3, fontWeight: 700 },
-  colQty: { flex: 1, textAlign: "center" },
-  colUnit: { flex: 1, textAlign: "right" },
-  colTotal: { flex: 1, textAlign: "right" },
-  colHeaderText: { color: "#6b7280", fontSize: 9 },
-  divider: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-    marginVertical: 16,
-  },
-  totalSection: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-  },
-  totalBox: {
-    width: 220,
-  },
-  totalRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  colCodigo: { width: 36, fontSize: 7 },
+  colDescricao: { flex: 1, fontSize: 7 },
+  colQtd: { width: 30, fontSize: 7, textAlign: "right" },
+  colVrUnit: { width: 36, fontSize: 7, textAlign: "right" },
+  colVrTot: { width: 36, fontSize: 7, textAlign: "right" },
+  colHeaderText: { fontFamily: "Helvetica-Bold", fontSize: 7 },
+  // ── Totais ───────────────────────────────────────────────────
+  totaisContainer: {
+    width: CONTENT_WIDTH,
+    alignSelf: "center",
     marginBottom: 4,
   },
-  totalLabel: { color: "#6b7280" },
-  totalValue: { fontWeight: 700, color: "#111827" },
-  grandTotalRow: {
+  totaisRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 2,
-    borderTopColor: "#111827",
+    marginBottom: 1,
   },
-  grandTotalLabel: { fontSize: 12, fontWeight: 700, color: "#111827" },
-  grandTotalValue: { fontSize: 12, fontWeight: 700, color: "#111827" },
-  footer: {
-    position: "absolute",
-    bottom: 40,
-    left: 40,
-    right: 40,
-    borderTopWidth: 1,
-    borderTopColor: "#e5e7eb",
-    paddingTop: 10,
+  totaisLabel: { fontSize: 8 },
+  totaisValue: { fontSize: 8 },
+  totalDestaque: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9,
+  },
+  // ── Pagamento ────────────────────────────────────────────────
+  pagamentoContainer: {
+    width: CONTENT_WIDTH,
+    alignSelf: "center",
+    marginBottom: 4,
+  },
+  pagamentoHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginBottom: 2,
   },
-  footerText: {
-    color: "#9ca3af",
+  pagamentoHeaderText: {
+    fontFamily: "Helvetica-Bold",
     fontSize: 8,
   },
-  statusBadge: {
-    backgroundColor: "#dcfce7",
-    color: "#166534",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-    fontSize: 9,
-    fontWeight: 700,
+  pagamentoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 1,
   },
-  statusBadgePending: {
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
+  // ── Observação ───────────────────────────────────────────────
+  observacaoContainer: {
+    width: CONTENT_WIDTH,
+    maxWidth: CONTENT_WIDTH,
+    alignSelf: "center",
+    marginBottom: 6,
   },
-  statusBadgePartial: {
-    backgroundColor: "#fef9c3",
-    color: "#854d0e",
+  observacaoText: {
+    fontSize: 8,
+    width: CONTENT_WIDTH,
+  },
+  // ── Operador ───────────────────────────────────────────────
+  operadorContainer: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 8,
+    marginBottom: 2,
+  },
+  // ── Rodapé ───────────────────────────────────────────────────
+  footerContainer: {
+    width: CONTENT_WIDTH,
+    alignSelf: "center",
+    alignItems: "center",
+    marginTop: 4,
+  },
+  footerText: {
+    fontSize: 7,
+    marginBottom: 1,
+  },
+  footerBold: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 7,
+    marginBottom: 1,
   },
 });
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
   pix: "Pix",
-  credit_card: "Cartão de crédito",
-  debit_card: "Cartão de débito",
-  bank_slip: "Boleto bancário",
+  credit_card: "Cartão de Crédito",
+  debit_card: "Cartão de Débito",
+  bank_slip: "Boleto Bancário",
   crediary: "Crediário",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  paid: "PAGO",
-  pending: "AGUARDANDO PAGAMENTO",
-  partially_paid: "PARCIALMENTE PAGO",
 };
 
 export interface InvoicePdfData {
@@ -182,174 +176,249 @@ export interface InvoicePdfData {
   paidAmountInCents: number;
 }
 
+function formatCurrency(cents: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(cents / 100);
+}
+
+function formatDate(date: Date) {
+  return new Date(date).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+const OBSERVACAO_CHARS_PER_LINE = 50;
+
+function splitObservacaoIntoLines(
+  text: string,
+  maxCharsPerLine: number,
+): string[] {
+  const lines: string[] = [];
+
+  for (const paragraph of text.split("\n")) {
+    if (!paragraph) {
+      lines.push("");
+      continue;
+    }
+
+    let currentLine = "";
+
+    for (const segment of paragraph.split(/(\s+)/)) {
+      if (!segment) continue;
+
+      if (segment.length > maxCharsPerLine) {
+        if (currentLine) {
+          lines.push(currentLine);
+          currentLine = "";
+        }
+
+        for (let i = 0; i < segment.length; i += maxCharsPerLine) {
+          lines.push(segment.slice(i, i + maxCharsPerLine));
+        }
+        continue;
+      }
+
+      const nextLine = currentLine + segment;
+      if (nextLine.length > maxCharsPerLine && currentLine) {
+        lines.push(currentLine);
+        currentLine = segment.trimStart();
+      } else {
+        currentLine = nextLine;
+      }
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+  }
+
+  return lines;
+}
+
+function DottedLine() {
+  return (
+    <Svg height={4} width={CONTENT_WIDTH}>
+      <Line
+        x1={0}
+        y1={2}
+        x2={CONTENT_WIDTH}
+        y2={2}
+        strokeWidth={1.5}
+        stroke="#000000"
+        strokeDasharray="2,2"
+      />
+    </Svg>
+  );
+}
+
+function Divider({ label }: { label?: string }) {
+  return (
+    <View style={styles.dividerContainer}>
+      <DottedLine />
+      {label && <Text style={styles.dividerText}>{label}</Text>}
+      <DottedLine />
+    </View>
+  );
+}
+
 export function InvoicePdf({ data }: { data: InvoicePdfData }) {
-  const formatCurrency = (cents: number) =>
-    new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(cents / 100);
-
-  const formatDate = (date: Date) =>
-    new Date(date).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-
-  const statusStyle =
-    data.status === "paid"
-      ? styles.statusBadge
-      : data.status === "partially_paid"
-        ? { ...styles.statusBadge, ...styles.statusBadgePartial }
-        : { ...styles.statusBadge, ...styles.statusBadgePending };
+  const isCrediary = data.paymentMethod === "crediary";
+  const remainingInCents = data.totalAmountInCents - data.paidAmountInCents;
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Cabeçalho */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.companyName}>Granja Barreto</Text>
-            <Text style={styles.companySubtitle}>
-              Produção e Venda de Ovos
-            </Text>
-          </View>
-          <View>
-            <Text style={styles.invoiceLabel}>NOTA FISCAL</Text>
-            <Text style={styles.invoiceNumber}>#{data.invoiceNumber}</Text>
-            <Text style={{ ...styles.invoiceLabel, marginTop: 4 }}>
-              {formatDate(data.date)}
-            </Text>
-          </View>
+        {/* ── Cabeçalho ── */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.companyName}>GRANJA BARRETO</Text>
+          <Text style={styles.headerLine}>Produção e Venda de Ovos</Text>
         </View>
 
-        {/* Informações do cliente e galpão */}
-        <View style={{ flexDirection: "row", gap: 24, marginBottom: 16 }}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.sectionTitle}>Cliente</Text>
-            <Text style={{ fontWeight: 700, fontSize: 11 }}>
-              {data.customerName ?? "Consumidor Final"}
+        {/* ── Info do pedido ── */}
+        <View style={styles.infoContainer}>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoText}>Pedido: {data.invoiceNumber}</Text>
+            <Text style={styles.infoText}>
+              Emitido em: {formatDate(data.date)}
             </Text>
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.sectionTitle}>Galpão</Text>
-            <Text style={{ fontWeight: 700, fontSize: 11 }}>
-              {data.warehouseName}
-            </Text>
-          </View>
+          <Text style={styles.infoText}>
+            Cliente: {data.customerName ?? "Consumidor Final"}
+          </Text>
         </View>
 
-        <View style={styles.divider} />
+        <Divider label="Documento não possui valor fiscal" />
 
-        {/* Tabela de itens */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Itens</Text>
-          <View style={styles.tableHeader}>
-            <Text style={{ ...styles.colDescription, ...styles.colHeaderText }}>
+        {/* ── Tabela de itens ── */}
+        <View style={styles.tableContainer}>
+          <View style={styles.tableHeaderRow}>
+            <Text style={[styles.colCodigo, styles.colHeaderText]}>Cód</Text>
+            <Text style={[styles.colDescricao, styles.colHeaderText]}>
               Descrição
             </Text>
-            <Text style={{ ...styles.colQty, ...styles.colHeaderText }}>
-              Qtd.
+            <Text style={[styles.colQtd, styles.colHeaderText]}>Qtd</Text>
+            <Text style={[styles.colVrUnit, styles.colHeaderText]}>
+              Vr Unit
             </Text>
-            <Text style={{ ...styles.colUnit, ...styles.colHeaderText }}>
-              Preço unit.
-            </Text>
-            <Text style={{ ...styles.colTotal, ...styles.colHeaderText }}>
-              Total
-            </Text>
+            <Text style={[styles.colVrTot, styles.colHeaderText]}>Vr Tot</Text>
           </View>
+          <DottedLine />
           <View style={styles.tableRow}>
-            <Text style={styles.colDescription}>Bandeja de Ovos (30 un.)</Text>
-            <Text style={styles.colQty}>{data.traysSold}</Text>
-            <Text style={styles.colUnit}>
+            <Text style={styles.colCodigo}>1</Text>
+            <Text style={styles.colDescricao}>BANDEJA DE OVOS (30UND.)</Text>
+            <Text style={styles.colQtd}>{data.traysSold} Un</Text>
+            <Text style={styles.colVrUnit}>
               {formatCurrency(data.pricePerTrayInCents)}
             </Text>
-            <Text style={styles.colTotal}>
+            <Text style={styles.colVrTot}>
               {formatCurrency(data.totalAmountInCents)}
             </Text>
           </View>
         </View>
 
-        <View style={styles.divider} />
+        <Divider label="Documento não possui valor fiscal" />
 
-        {/* Totais e pagamento */}
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.sectionTitle}>Pagamento</Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Forma</Text>
-              <Text style={{ ...styles.value, textAlign: "left" }}>
-                {PAYMENT_METHOD_LABELS[data.paymentMethod] ?? data.paymentMethod}
-              </Text>
-            </View>
-            {data.paymentMethod === "crediary" && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Pago</Text>
-                <Text style={{ ...styles.value, textAlign: "left" }}>
-                  {formatCurrency(data.paidAmountInCents)}
-                </Text>
-              </View>
-            )}
-            <View style={{ marginTop: 8 }}>
-              <Text style={statusStyle}>
-                {STATUS_LABELS[data.status] ?? data.status.toUpperCase()}
-              </Text>
-            </View>
+        {/* ── Totais ── */}
+        <View style={styles.totaisContainer}>
+          <View style={styles.totaisRow}>
+            <Text style={styles.totaisLabel}>Subtotal</Text>
+            <Text style={styles.totaisValue}>
+              {formatCurrency(data.totalAmountInCents)}
+            </Text>
           </View>
-
-          <View style={styles.totalBox}>
-            {data.paymentMethod === "crediary" && (
-              <>
-                <View style={styles.totalRow}>
-                  <Text style={styles.totalLabel}>Total</Text>
-                  <Text style={styles.totalValue}>
-                    {formatCurrency(data.totalAmountInCents)}
-                  </Text>
-                </View>
-                <View style={styles.totalRow}>
-                  <Text style={styles.totalLabel}>Pago</Text>
-                  <Text style={styles.totalValue}>
-                    {formatCurrency(data.paidAmountInCents)}
-                  </Text>
-                </View>
-              </>
-            )}
-            <View style={styles.grandTotalRow}>
-              <Text style={styles.grandTotalLabel}>
-                {data.paymentMethod === "crediary"
-                  ? "Saldo devedor"
-                  : "Total"}
-              </Text>
-              <Text style={styles.grandTotalValue}>
-                {formatCurrency(
-                  data.paymentMethod === "crediary"
-                    ? data.totalAmountInCents - data.paidAmountInCents
-                    : data.totalAmountInCents,
-                )}
-              </Text>
-            </View>
+          <View style={styles.totaisRow}>
+            <Text style={styles.totaisLabel}>Total de Acréscimos (+)</Text>
+            <Text style={styles.totaisValue}>R$ 0,00</Text>
+          </View>
+          <View style={styles.totaisRow}>
+            <Text style={styles.totaisLabel}>Total de Descontos (-)</Text>
+            <Text style={styles.totaisValue}>R$ 0,00</Text>
+          </View>
+          <View style={styles.totaisRow}>
+            <Text style={styles.totaisLabel}>Frete</Text>
+            <Text style={styles.totaisValue}>R$ 0,00</Text>
+          </View>
+          <View style={styles.totaisRow}>
+            <Text style={styles.totaisLabel}>Serviço</Text>
+            <Text style={styles.totaisValue}>R$ 0,00</Text>
+          </View>
+          <View style={styles.totaisRow}>
+            <Text style={[styles.totaisLabel, styles.totalDestaque]}>
+              Valor Total
+            </Text>
+            <Text style={[styles.totaisValue, styles.totalDestaque]}>
+              {formatCurrency(data.totalAmountInCents)}
+            </Text>
+          </View>
+          <View style={{ marginTop: 2 }}>
+            <DottedLine />
           </View>
         </View>
 
-        {/* Observações */}
-        {data.notes && (
-          <>
-            <View style={styles.divider} />
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Observações</Text>
-              <Text style={{ color: "#4b5563" }}>{data.notes}</Text>
+        {/* ── Forma de pagamento ── */}
+        <View style={styles.pagamentoContainer}>
+          <View style={styles.pagamentoHeader}>
+            <Text style={styles.pagamentoHeaderText}>Forma de Pagamento</Text>
+            <Text style={styles.pagamentoHeaderText}>Valor Pago</Text>
+          </View>
+          <View style={styles.pagamentoRow}>
+            <Text style={styles.infoText}>
+              {PAYMENT_METHOD_LABELS[data.paymentMethod] ?? data.paymentMethod}
+            </Text>
+            <Text style={styles.infoText}>
+              {formatCurrency(data.paidAmountInCents)}
+            </Text>
+          </View>
+          {isCrediary && (
+            <View style={styles.pagamentoRow}>
+              <Text style={styles.infoText}>Saldo devedor</Text>
+              <Text style={styles.infoText}>
+                {formatCurrency(remainingInCents)}
+              </Text>
             </View>
-          </>
-        )}
+          )}
+        </View>
 
-        {/* Rodapé */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Granja Barreto — Documento de controle interno
-          </Text>
-          <Text style={styles.footerText}>
-            NF #{data.invoiceNumber} · {formatDate(data.date)}
-          </Text>
+        {/* ── Observação ── */}
+        {data.notes ? (
+          <View style={styles.observacaoContainer}>
+            <Text
+              style={{
+                fontFamily: "Helvetica-Bold",
+                fontSize: 8,
+                marginBottom: 2,
+              }}
+            >
+              Observação
+            </Text>
+            <Text style={styles.observacaoText}>
+              {splitObservacaoIntoLines(
+                data.notes,
+                OBSERVACAO_CHARS_PER_LINE,
+              ).join("\n")}
+            </Text>
+          </View>
+        ) : null}
+
+        {/* ── Operador ── */}
+        <View style={styles.totaisContainer}>
+          <View style={styles.totaisRow}>
+            <Text style={styles.totaisLabel}>Operador: GRANJA BARRETO</Text>
+          </View>
+        </View>
+
+        {/* ── Rodapé ── */}
+        <View style={styles.footerContainer}>
+          <DottedLine />
+          <Text style={styles.footerBold}>Obrigado pela preferência</Text>
+          <DottedLine />
+          <Text style={styles.footerBold}>Terrrabit x Grove Solutions</Text>
         </View>
       </Page>
     </Document>
