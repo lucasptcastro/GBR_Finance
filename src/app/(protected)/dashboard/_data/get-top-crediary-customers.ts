@@ -7,12 +7,28 @@ export interface TopCrediaryCustomer {
   remainingInCents: number;
 }
 
+const parseDate = (str: string | undefined): Date | undefined => {
+  if (!str) return undefined;
+  const d = new Date(str + "T00:00:00");
+  return isNaN(d.getTime()) ? undefined : d;
+};
+
 export async function getTopCrediaryCustomers(
   limit = 10,
+  from?: string,
+  to?: string,
 ): Promise<TopCrediaryCustomer[]> {
+  const fromDate = parseDate(from);
+  const toDate = parseDate(to);
+
   const pendingSales = await db.query.salesTable.findMany({
-    where: (table, { and, eq, ne }) =>
-      and(eq(table.paymentMethod, "crediary"), ne(table.status, "paid")),
+    where: (table, { and, eq, ne, gte, lte }) =>
+      and(
+        eq(table.paymentMethod, "crediary"),
+        ne(table.status, "paid"),
+        fromDate ? gte(table.date, fromDate) : undefined,
+        toDate ? lte(table.date, toDate) : undefined,
+      ),
     with: {
       customer: { columns: { id: true, name: true } },
       payments: { columns: { amountInCents: true } },

@@ -40,7 +40,11 @@ const formatDisplayRange = (from: Date | undefined, to: Date | undefined) => {
   return t ? `${f} - ${t}` : f;
 };
 
-export function SalesComparisonPicker() {
+interface SalesComparisonPickerProps {
+  compact?: boolean;
+}
+
+export function SalesComparisonPicker({ compact = false }: SalesComparisonPickerProps) {
   const [open, setOpen] = useState(false);
 
   const [salesFrom, setSalesFrom] = useQueryState(
@@ -112,31 +116,47 @@ export function SalesComparisonPicker() {
   const compareLabel = formatDisplayRange(compareRange?.from, compareRange?.to);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "justify-start text-left font-normal",
-              !hasCustomRange && "text-muted-foreground",
-            )}
-          >
-            <CalendarDays className="mr-2 h-4 w-4" />
-            {hasCustomRange && currentLabel ? (
-              <span className="text-sm">
-                {currentLabel}
-                {compareLabel && (
-                  <>
-                    <span className="text-muted-foreground mx-1">vs</span>
-                    {compareLabel}
-                  </>
-                )}
-              </span>
-            ) : (
-              <span>Comparar </span>
-            )}
-          </Button>
+          {compact ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-8 w-8",
+                hasCustomRange
+                  ? "text-primary"
+                  : "text-muted-foreground",
+              )}
+              title="Comparar períodos"
+            >
+              <CalendarDays className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              className={cn(
+                "justify-start text-left font-normal",
+                !hasCustomRange && "text-muted-foreground",
+              )}
+            >
+              <CalendarDays className="mr-2 h-4 w-4" />
+              {hasCustomRange && currentLabel ? (
+                <span className="text-sm">
+                  {currentLabel}
+                  {compareLabel && (
+                    <>
+                      <span className="text-muted-foreground mx-1">vs</span>
+                      {compareLabel}
+                    </>
+                  )}
+                </span>
+              ) : (
+                <span>Comparar períodos</span>
+              )}
+            </Button>
+          )}
         </PopoverTrigger>
         <PopoverContent className="w-auto p-4" align="start">
           <div className="flex flex-col gap-4 sm:flex-row">
@@ -178,10 +198,14 @@ export function SalesComparisonPicker() {
         <Button
           variant="ghost"
           size="icon"
-          className="text-muted-foreground h-8 w-8"
+          className={cn(
+            "h-8 w-8 text-muted-foreground",
+            compact && "h-6 w-6",
+          )}
           onClick={handleReset}
+          title="Limpar filtro"
         >
-          <X className="h-4 w-4" />
+          <X className={cn("h-4 w-4", compact && "h-3 w-3")} />
         </Button>
       )}
     </div>

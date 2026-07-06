@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { and, gte, lte, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { salesTable } from "@/db/schema";
@@ -16,7 +16,19 @@ const STATUS_LABELS: Record<string, string> = {
   pending: "Pendente",
 };
 
-export async function getSalesByStatus(): Promise<SalesByStatus[]> {
+const parseDate = (str: string | undefined): Date | undefined => {
+  if (!str) return undefined;
+  const d = new Date(str + "T00:00:00");
+  return isNaN(d.getTime()) ? undefined : d;
+};
+
+export async function getSalesByStatus(
+  from?: string,
+  to?: string,
+): Promise<SalesByStatus[]> {
+  const fromDate = parseDate(from);
+  const toDate = parseDate(to);
+
   const rows = await db
     .select({
       status: salesTable.status,
@@ -24,6 +36,12 @@ export async function getSalesByStatus(): Promise<SalesByStatus[]> {
       salesCount: sql<number>`count(*)::int`,
     })
     .from(salesTable)
+    .where(
+      and(
+        fromDate ? gte(salesTable.date, fromDate) : undefined,
+        toDate ? lte(salesTable.date, toDate) : undefined,
+      ),
+    )
     .groupBy(salesTable.status)
     .orderBy(sql`count(*) desc`);
 

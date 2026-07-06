@@ -8,10 +8,26 @@ export interface TopBuyingCustomer {
   salesCount: number;
 }
 
+const parseDate = (str: string | undefined): Date | undefined => {
+  if (!str) return undefined;
+  const d = new Date(str + "T00:00:00");
+  return isNaN(d.getTime()) ? undefined : d;
+};
+
 export async function getTopBuyingCustomers(
   limit = 10,
+  from?: string,
+  to?: string,
 ): Promise<TopBuyingCustomer[]> {
+  const fromDate = parseDate(from);
+  const toDate = parseDate(to);
+
   const allSales = await db.query.salesTable.findMany({
+    where: (table, { and, gte, lte }) =>
+      and(
+        fromDate ? gte(table.date, fromDate) : undefined,
+        toDate ? lte(table.date, toDate) : undefined,
+      ),
     with: {
       customer: { columns: { id: true, name: true } },
     },

@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { and, gte, lte, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { salesTable } from "@/db/schema";
@@ -20,7 +20,19 @@ const DAY_LABELS: Record<number, string> = {
   6: "Sáb",
 };
 
-export async function getSalesByDayOfWeek(): Promise<SalesByDayOfWeek[]> {
+const parseDate = (str: string | undefined): Date | undefined => {
+  if (!str) return undefined;
+  const d = new Date(str + "T00:00:00");
+  return isNaN(d.getTime()) ? undefined : d;
+};
+
+export async function getSalesByDayOfWeek(
+  from?: string,
+  to?: string,
+): Promise<SalesByDayOfWeek[]> {
+  const fromDate = parseDate(from);
+  const toDate = parseDate(to);
+
   const rows = await db
     .select({
       dayIndex: sql<number>`EXTRACT(DOW FROM ${salesTable.date})::int`,
@@ -28,12 +40,16 @@ export async function getSalesByDayOfWeek(): Promise<SalesByDayOfWeek[]> {
       salesCount: sql<number>`count(*)::int`,
     })
     .from(salesTable)
+    .where(
+      and(
+        fromDate ? gte(salesTable.date, fromDate) : undefined,
+        toDate ? lte(salesTable.date, toDate) : undefined,
+      ),
+    )
     .groupBy(sql`EXTRACT(DOW FROM ${salesTable.date})`)
     .orderBy(sql`EXTRACT(DOW FROM ${salesTable.date})`);
 
-  const resultMap = new Map(
-    rows.map((r) => [r.dayIndex, r]),
-  );
+  const resultMap = new Map(rows.map((r) => [r.dayIndex, r]));
 
   return Array.from({ length: 7 }, (_, i) => {
     const row = resultMap.get(i);

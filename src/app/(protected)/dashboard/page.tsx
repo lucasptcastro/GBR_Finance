@@ -94,14 +94,14 @@ export default async function DashboardPage({
       salesCompareFrom,
       salesCompareTo,
     ),
-    getTopCrediaryCustomers(),
-    getTopBuyingCustomers(),
-    getSalesByPaymentMethod(),
-    getSalesByStatus(),
+    getTopCrediaryCustomers(10, salesFrom, salesTo),
+    getTopBuyingCustomers(10, salesFrom, salesTo),
+    getSalesByPaymentMethod(salesFrom, salesTo),
+    getSalesByStatus(salesFrom, salesTo),
     getCrediaryEvolutionByYear(currentYear),
-    getSalesByDayOfWeek(),
+    getSalesByDayOfWeek(salesFrom, salesTo),
     getInactiveCustomers(),
-    getSalesTicketDistribution(),
+    getSalesTicketDistribution(salesFrom, salesTo),
   ]);
 
   const warehouses = warehousesData.map(({ id, name }) => ({ id, name }));

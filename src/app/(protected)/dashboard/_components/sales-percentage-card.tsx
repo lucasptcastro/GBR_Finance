@@ -62,18 +62,24 @@ export function SalesPercentageCard({ summary }: SalesPercentageCardProps) {
     <Card className="bg-transparent">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-sm p-1.5">
+          <div
+            className={cn("rounded-sm p-1.5", {
+              "bg-red-500/10": isNegative,
+              "bg-green-500/10": isPositive,
+              "bg-primary/10": !isNegative && !isPositive,
+            })}
+          >
             {isNegative ? (
               <TrendingDown size={16} className="text-red-500" />
             ) : (
-              <TrendingUp size={16} className="text-primary" />
+              <TrendingUp size={16} className="text-green-500" />
             )}
           </div>
           <p className="text-muted-foreground text-sm">Variação nas Vendas</p>
         </div>
-        <SalesComparisonPicker />
+        <SalesComparisonPicker compact />
       </CardHeader>
-      <CardContent className="flex flex-col gap-2">
+      <CardContent className="flex flex-col gap-3">
         <p
           className={cn(
             "text-2xl font-bold",
@@ -83,13 +89,15 @@ export function SalesPercentageCard({ summary }: SalesPercentageCardProps) {
         >
           {variation === null ? "—" : `${isPositive ? "+" : ""}${variation}%`}
         </p>
-        <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
+        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs">
           <span className="text-foreground font-medium">
             {formatPeriod(currentFrom, currentTo)}
           </span>
-          <span>vs</span>
-          <span>{formatPeriod(compareFrom, compareTo)}</span>
-        </p>
+          <span className="text-muted-foreground">vs</span>
+          <span className="text-muted-foreground">
+            {formatPeriod(compareFrom, compareTo)}
+          </span>
+        </div>
       </CardContent>
     </Card>
   );
