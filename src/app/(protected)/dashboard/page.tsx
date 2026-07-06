@@ -18,19 +18,38 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { auth } from "@/lib/auth";
 import { Bird, Egg, EggOff, LayoutGrid, Wheat } from "lucide-react";
+
 import { SummaryCard } from "../_components/summary-card";
+import { RangeDatePicker } from "../_components/range-date-picker";
 import { getMonthlyProductionByYear } from "./_data/get-monthly-production-by-year";
 import { getProductionSummaryByDateRange } from "./_data/get-production-summary-by-date-range";
-import { DashboardCharts } from "./_components/dashboard-charts";
-import { RangeDatePicker } from "../_components/range-date-picker";
+import { getMonthlySalesByYear } from "./_data/get-monthly-sales-by-year";
+import { getSalesSummaryByDateRange } from "./_data/get-sales-summary-by-date-range";
+import { getTopCrediaryCustomers } from "./_data/get-top-crediary-customers";
+import { getTopBuyingCustomers } from "./_data/get-top-buying-customers";
+import { getSalesByPaymentMethod } from "./_data/get-sales-by-payment-method";
+import { getSalesByStatus } from "./_data/get-sales-by-status";
+import { getCrediaryEvolutionByYear } from "./_data/get-crediary-evolution-by-year";
+import { getSalesByDayOfWeek } from "./_data/get-sales-by-day-of-week";
+import { getInactiveCustomers } from "./_data/get-inactive-customers";
+import { getSalesTicketDistribution } from "./_data/get-sales-ticket-distribution";
 import { getWarehouses } from "../warehouses/_data/get-warehouses";
+import { DashboardCharts } from "./_components/dashboard-charts";
+import { DashboardSalesCharts } from "./_components/dashboard-sales-charts";
+import { SalesSummaryCards } from "./_components/sales-summary-cards";
+import { SalesPercentageCard } from "./_components/sales-percentage-card";
 
 interface DashboardPageProps {
   searchParams: Promise<{
-    from: string;
-    to: string;
+    from?: string;
+    to?: string;
+    salesFrom?: string;
+    salesTo?: string;
+    salesCompareFrom?: string;
+    salesCompareTo?: string;
   }>;
 }
 
@@ -45,20 +64,49 @@ export default async function DashboardPage({
     redirect("/");
   }
 
-  const { from, to } = await searchParams;
+  const { from, to, salesFrom, salesTo, salesCompareFrom, salesCompareTo } =
+    await searchParams;
 
   const currentYear = new Date().getFullYear();
 
-  const [monthlyProductionData, warehousesData, productionSummary] =
-    await Promise.all([
-      getMonthlyProductionByYear(currentYear),
-      getWarehouses(),
-      getProductionSummaryByDateRange(from, to),
-    ]);
+  const [
+    monthlyProductionData,
+    warehousesData,
+    productionSummary,
+    monthlySalesData,
+    salesSummary,
+    topCrediaryCustomers,
+    topBuyingCustomers,
+    salesByPaymentMethod,
+    salesByStatus,
+    crediaryEvolutionData,
+    salesByDayOfWeek,
+    inactiveCustomers,
+    salesTicketDistribution,
+  ] = await Promise.all([
+    getMonthlyProductionByYear(currentYear),
+    getWarehouses(),
+    getProductionSummaryByDateRange(from, to),
+    getMonthlySalesByYear(currentYear),
+    getSalesSummaryByDateRange(
+      salesFrom,
+      salesTo,
+      salesCompareFrom,
+      salesCompareTo,
+    ),
+    getTopCrediaryCustomers(),
+    getTopBuyingCustomers(),
+    getSalesByPaymentMethod(),
+    getSalesByStatus(),
+    getCrediaryEvolutionByYear(currentYear),
+    getSalesByDayOfWeek(),
+    getInactiveCustomers(),
+    getSalesTicketDistribution(),
+  ]);
 
   const warehouses = warehousesData.map(({ id, name }) => ({ id, name }));
 
-  const summary = [
+  const productionCards = [
     {
       title: "Total de Ovos ",
       amount: productionSummary.totalEggs.toLocaleString("pt-BR"),
@@ -155,47 +203,62 @@ export default async function DashboardPage({
           </PageActions>
         </PageHeader>
         <PageContent>
-          <div className="flex h-full flex-col space-y-6">
-            <div className="flex h-full w-full flex-col gap-6 xl:flex-row">
-              <div className="flex h-full flex-1 flex-row gap-6">
-                <div className="flex w-full flex-col gap-6">
-                  <div className="grid w-full grid-cols-1 gap-4 min-[520px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-                    {summary.map((item) => (
-                      <SummaryCard
-                        className="gap-2 py-4"
-                        key={item.title}
-                        icon={item.icon}
-                        title={item.title}
-                        amount={item.amount}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex flex-col gap-6">
-                    <DashboardCharts
-                      monthlyProductionData={monthlyProductionData}
-                      startFrom={String(currentYear)}
-                      warehouses={warehouses}
-                    />
+          <Tabs defaultValue="producao" className="flex flex-col gap-6">
+            <TabsList className="w-fit">
+              <TabsTrigger value="producao">Produção</TabsTrigger>
+              <TabsTrigger value="vendas">Vendas</TabsTrigger>
+            </TabsList>
 
-                    {/* <DashboardPieCharts
-                      bankAccountsSummary={bankAccountsSummary}
-                      typesPercentage={typesPercentage}
-                      incomeAllocationPercentage={incomeAllocationPercentage}
-                      depositsTotal={depositsTotal}
-                      investmentsTotal={investmentsTotal}
-                      expensesTotal={expensesTotal}
-                    /> */}
+            <TabsContent value="producao" className="mt-0">
+              <div className="flex h-full flex-col space-y-6">
+                <div className="flex h-full w-full flex-col gap-6 xl:flex-row">
+                  <div className="flex h-full flex-1 flex-row gap-6">
+                    <div className="flex w-full flex-col gap-6">
+                      <div className="grid w-full grid-cols-1 gap-4 min-[520px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+                        {productionCards.map((item) => (
+                          <SummaryCard
+                            key={item.title}
+                            icon={item.icon}
+                            title={item.title}
+                            amount={item.amount}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex flex-col gap-6">
+                        <DashboardCharts
+                          monthlyProductionData={monthlyProductionData}
+                          startFrom={String(currentYear)}
+                          warehouses={warehouses}
+                        />
+                      </div>
+                    </div>
                   </div>
+                  <div className="max-h-full w-full flex-1 xl:max-w-[300px]" />
                 </div>
               </div>
+            </TabsContent>
 
-              <div className="max-h-full w-full flex-1 xl:max-w-[300px]">
-                {/* <ExpensesPerCategory
-                  expensesPerCategory={totalExpensePerCategory}
-                /> */}
+            <TabsContent value="vendas" className="mt-0">
+              <div className="flex flex-col gap-6">
+                <div className="grid w-full grid-cols-1 gap-4 min-[520px]:grid-cols-2 xl:grid-cols-4">
+                  <SalesSummaryCards summary={salesSummary} />
+                  <SalesPercentageCard summary={salesSummary} />
+                </div>
+                <DashboardSalesCharts
+                  monthlySalesData={monthlySalesData}
+                  topCrediaryCustomers={topCrediaryCustomers}
+                  topBuyingCustomers={topBuyingCustomers}
+                  salesByPaymentMethod={salesByPaymentMethod}
+                  salesByStatus={salesByStatus}
+                  crediaryEvolutionData={crediaryEvolutionData}
+                  salesByDayOfWeek={salesByDayOfWeek}
+                  inactiveCustomers={inactiveCustomers}
+                  salesTicketDistribution={salesTicketDistribution}
+                  startFrom={String(currentYear)}
+                />
               </div>
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
         </PageContent>
       </PageContainer>
     </>
