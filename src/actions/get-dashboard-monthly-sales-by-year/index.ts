@@ -7,7 +7,8 @@ import { db } from "@/db";
 import { salesTable } from "@/db/schema";
 import { protectedActionClient } from "@/lib/next-safe-action";
 
-export type { MonthlySales } from "@/app/(protected)/dashboard/_data/get-monthly-sales-by-year";
+import type { MonthlySales } from "@/app/(protected)/dashboard/_data/get-monthly-sales-by-year";
+export type { MonthlySales };
 
 export const getDashboardMonthlySalesByYear = protectedActionClient
   .schema(z.object({ year: z.number() }))

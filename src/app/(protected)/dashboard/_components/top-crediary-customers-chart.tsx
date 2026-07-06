@@ -131,8 +131,8 @@ export function TopCrediaryCustomersChart({
               <LabelList
                 dataKey="remainingInCents"
                 position="right"
-                formatter={(v: number) =>
-                  `R$${v.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`
+                formatter={(v: unknown) =>
+                  `R$${Number(v).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`
                 }
                 className="text-xs fill-foreground"
               />
