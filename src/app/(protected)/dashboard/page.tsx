@@ -37,15 +37,19 @@ import { getSalesByDayOfWeek } from "./_data/get-sales-by-day-of-week";
 import { getInactiveCustomers } from "./_data/get-inactive-customers";
 import { getSalesTicketDistribution } from "./_data/get-sales-ticket-distribution";
 import { getWarehouses } from "../warehouses/_data/get-warehouses";
+import { getProductionByWarehouse } from "./_data/get-production-by-warehouse";
 import { DashboardCharts } from "./_components/dashboard-charts";
 import { DashboardSalesCharts } from "./_components/dashboard-sales-charts";
 import { SalesSummaryCards } from "./_components/sales-summary-cards";
 import { SalesPercentageCard } from "./_components/sales-percentage-card";
+import { ProductionPercentageCard } from "./_components/production-percentage-card";
 
 interface DashboardPageProps {
   searchParams: Promise<{
     from?: string;
     to?: string;
+    prodCompareFrom?: string;
+    prodCompareTo?: string;
     salesFrom?: string;
     salesTo?: string;
     salesCompareFrom?: string;
@@ -64,15 +68,37 @@ export default async function DashboardPage({
     redirect("/");
   }
 
-  const { from, to, salesFrom, salesTo, salesCompareFrom, salesCompareTo } =
-    await searchParams;
+  const {
+    from,
+    to,
+    prodCompareFrom,
+    prodCompareTo,
+    salesFrom,
+    salesTo,
+    salesCompareFrom,
+    salesCompareTo,
+  } = await searchParams;
 
   const currentYear = new Date().getFullYear();
+
+  const now = new Date();
+  const defaultProdCompareFrom = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    1,
+  )
+    .toISOString()
+    .split("T")[0];
+  const defaultProdCompareTo = new Date(now.getFullYear(), now.getMonth(), 0)
+    .toISOString()
+    .split("T")[0];
 
   const [
     monthlyProductionData,
     warehousesData,
     productionSummary,
+    productionCompareSummary,
+    productionByWarehouse,
     monthlySalesData,
     salesSummary,
     topCrediaryCustomers,
@@ -87,6 +113,11 @@ export default async function DashboardPage({
     getMonthlyProductionByYear(currentYear),
     getWarehouses(),
     getProductionSummaryByDateRange(from, to),
+    getProductionSummaryByDateRange(
+      prodCompareFrom || defaultProdCompareFrom,
+      prodCompareTo || defaultProdCompareTo,
+    ),
+    getProductionByWarehouse(from, to),
     getMonthlySalesByYear(currentYear),
     getSalesSummaryByDateRange(
       salesFrom,
@@ -108,7 +139,7 @@ export default async function DashboardPage({
 
   const productionCards = [
     {
-      title: "Total de Ovos ",
+      title: "Total de Ovos",
       amount: productionSummary.totalEggs.toLocaleString("pt-BR"),
       icon: (
         <div className="bg-primary/10 rounded-sm p-1.5">
@@ -117,8 +148,8 @@ export default async function DashboardPage({
       ),
     },
     {
-      title: "Bandejas ",
-      amount: 0,
+      title: "Bandejas",
+      amount: productionSummary.totalTrays.toLocaleString("pt-BR"),
       icon: (
         <div className="bg-primary/10 rounded-sm p-1.5">
           <LayoutGrid size={16} className="text-primary" />
@@ -126,8 +157,8 @@ export default async function DashboardPage({
       ),
     },
     {
-      title: "Ovos Sobrados ",
-      amount: 0,
+      title: "Ovos Sobrados",
+      amount: productionSummary.eggsLeftover.toLocaleString("pt-BR"),
       icon: (
         <div className="bg-primary/10 rounded-sm p-1.5">
           <Egg size={16} className="text-primary" />
@@ -135,8 +166,8 @@ export default async function DashboardPage({
       ),
     },
     {
-      title: "Ovos Trincados ",
-      amount: 0,
+      title: "Ovos Trincados",
+      amount: productionSummary.crackedEggs.toLocaleString("pt-BR"),
       icon: (
         <div className="bg-primary/10 rounded-sm p-1.5">
           <EggOff size={16} className="text-primary" />
@@ -144,8 +175,8 @@ export default async function DashboardPage({
       ),
     },
     {
-      title: "Rações Usadas ",
-      amount: 0,
+      title: "Rações Usadas",
+      amount: productionSummary.feedUsed.toLocaleString("pt-BR"),
       icon: (
         <div className="bg-primary/10 rounded-sm p-1.5">
           <Wheat size={16} className="text-primary" />
@@ -153,8 +184,8 @@ export default async function DashboardPage({
       ),
     },
     {
-      title: "Aves Mortas ",
-      amount: 0,
+      title: "Aves Mortas",
+      amount: productionSummary.deadBirds.toLocaleString("pt-BR"),
       icon: (
         <div className="bg-primary/10 rounded-sm p-1.5">
           <Bird size={16} className="text-primary" />
@@ -210,31 +241,27 @@ export default async function DashboardPage({
             </TabsList>
 
             <TabsContent value="producao" className="mt-0">
-              <div className="flex h-full flex-col space-y-6">
-                <div className="flex h-full w-full flex-col gap-6 xl:flex-row">
-                  <div className="flex h-full flex-1 flex-row gap-6">
-                    <div className="flex w-full flex-col gap-6">
-                      <div className="grid w-full grid-cols-1 gap-4 min-[520px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-                        {productionCards.map((item) => (
-                          <SummaryCard
-                            key={item.title}
-                            icon={item.icon}
-                            title={item.title}
-                            amount={item.amount}
-                          />
-                        ))}
-                      </div>
-                      <div className="flex flex-col gap-6">
-                        <DashboardCharts
-                          monthlyProductionData={monthlyProductionData}
-                          startFrom={String(currentYear)}
-                          warehouses={warehouses}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="max-h-full w-full flex-1 xl:max-w-[300px]" />
+              <div className="flex flex-col gap-6">
+                <div className="grid w-full grid-cols-1 gap-4 min-[520px]:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-4">
+                  <ProductionPercentageCard
+                    current={productionSummary}
+                    previous={productionCompareSummary}
+                  />
+                  {productionCards.map((item) => (
+                    <SummaryCard
+                      key={item.title}
+                      icon={item.icon}
+                      title={item.title}
+                      amount={item.amount}
+                    />
+                  ))}
                 </div>
+                <DashboardCharts
+                  monthlyProductionData={monthlyProductionData}
+                  startFrom={String(currentYear)}
+                  warehouses={warehouses}
+                  productionByWarehouse={productionByWarehouse}
+                />
               </div>
             </TabsContent>
 
