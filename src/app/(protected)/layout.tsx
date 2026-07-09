@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { AppFooter } from "@/app/(protected)/_components/app-footer";
 import { AppSidebar } from "@/app/(protected)/_components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getRole } from "@/data/get-role";
@@ -28,9 +29,10 @@ export default async function ProtectedLayout({
   return (
     <SidebarProvider>
       <AppSidebar userRole={roleSlug} appVersion="1.0.0" />
-      <main className="w-full">
+      <main className="flex min-h-svh w-full flex-col">
         <SidebarTrigger />
-        {children}
+        <div className="flex-1">{children}</div>
+        <AppFooter />
       </main>
     </SidebarProvider>
   );
